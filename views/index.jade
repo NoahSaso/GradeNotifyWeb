@@ -1,8 +1,37 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  p= req
-  p= res
-  p= next
+  form(action='/signup', method='post')
+    div(class='container-fluid')
+      div(class='row')
+        div(class='col-6')
+          label(for='first_name') First Name
+          input(id='first_name',type='text',name='first_name',class='form-control',required=true)
+        div(class='col-6')
+          label(for='last_name') Last Name
+          input(id='last_name',type='text',name='last_name',class='form-control',required=true)
+      br
+      div(class='row')
+        div(class='col-12')
+          label(for='email') Email
+          input(id='email',type='text',name='email',class='form-control',required=true)
+      br
+      div(class='row')
+        div(class='col-12')
+          label(for='username') Infinite Campus Username
+          input(id='username',type='text',name='username',class='form-control',required=true)
+      br
+      div(class='row')
+        div(class='col-12')
+          label(for='password') Infinite Campus Password
+          input(id='password',type='password',name='password',class='form-control',required=true)
+      br
+      div(class='row')
+        div(class='col-12')
+          input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
+      if done == 1
+        br
+        div(class='row')
+          div(class='col-12')
+            div(class='alert alert-success')
+              p(style='margin-bottom:0') You have successfully registered.

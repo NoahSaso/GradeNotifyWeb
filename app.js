@@ -24,6 +24,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+
+app.use('/bootstrap', express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
+app.use('/tether', express.static(path.join(__dirname, 'node_modules/tether/dist')));
+
 app.use(express.static('static'));
 
 // catch 404 and forward to error handler

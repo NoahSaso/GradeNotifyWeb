@@ -1,14 +1,31 @@
 var express = require('express');
 var router = express.Router();
+var url = require('url');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+// Run command in terminal
+var exec = require('child_process').exec;
+function puts(error, stdout, stderr) { console.log(stdout); }
+
+/* GET home page */
+router.get('/', function (req, res, next) {
+  if (req.query.d === undefined) {
+    req.query.d = 0;
+  }
+  res.render('index', { title: 'GradeNotify', done: req.query.d });
 });
 
-/* POST account */
-router.post('/', function(req, res, next) {
-  res.render('index', { title: 'Thanks', req: JSON.stringify(req.body.test) });
+/* POST signup */
+router.post('/signup', function (req, res, next) {
+  data = req.body;
+
+  exec("/usr/bin/env python ic_grades/grades.py -z 123", puts);
+
+  res.redirect(url.format({
+    pathname: "/",
+    query: {
+       "d": 1,
+     }
+  }));
 });
 
 module.exports = router;
