@@ -1,0 +1,4 @@
+smtp_address: smtp.gmail.com:587
+smtp_username: nosasspam@gmail.com
+smtp_password: "%%iamnosasspam%%"
+login_url: https://sanjoseca.infinitecampus.org/campus/sanjose.jsp
