@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
 
 /* POST account */
 router.post('/', function(req, res, next) {
-  res.render('index', { title: 'Thanks', req: JSON.stringify(req.body.test) });
+  res.render('index', { req: req, res: res, next: next});
 });
 
 module.exports = router;
