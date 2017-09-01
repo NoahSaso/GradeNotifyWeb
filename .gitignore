@@ -2,4 +2,3 @@ node_modules
 start.sh
 stop.sh
 restart.sh
-ic_grades/database.db
