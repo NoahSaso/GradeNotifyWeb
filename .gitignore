@@ -3,3 +3,4 @@ start.sh
 stop.sh
 restart.sh
 grades.py
+log/
