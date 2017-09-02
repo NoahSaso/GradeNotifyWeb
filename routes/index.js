@@ -28,7 +28,6 @@ function addAccount(user_data, callback) {
   var query = "./grades.py -z 123 -a '" + JSON.stringify(data) + "'";
   console.log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
-    console.log("stdout: " + stdout + " stderr: " + stderr);
     callback();
   });
 }
@@ -72,9 +71,8 @@ router.post('/enable', function (req, res, next) {
 
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/", query: {p: 1} }));
+      res.redirect(url.format({ pathname: "/#hi", query: {p: 1} }));
     } else {
-      console.log(JSON.stringify(data));
       exec("./grades.py -e '" + data.username + "'", function (error, stdout, stderror) {
         res.redirect(url.format({ pathname: "/", query: {s: 'e'} }));
       });
@@ -90,7 +88,6 @@ router.post('/disable', function (req, res, next) {
     if (!valid) {
       res.redirect(url.format({ pathname: "/", query: {p: 1} }));
     } else {
-      console.log(JSON.stringify(data));
       exec("./grades.py -d '" + data.username + "'", function (error, stdout, stderror) {
         res.redirect(url.format({ pathname: "/", query: {s: 'd'} }));
       });
@@ -107,7 +104,6 @@ router.post('/update', function (req, res, next) {
     if (!valid) {
       res.redirect(url.format({ pathname: "/", query: {p: 1} }));
     } else {
-      console.log("./grades.py -z 123 -m '" + JSON.stringify({ username: data.username, key: 'password', value: data.new_password }) + "'");
       exec("./grades.py -z 123 -m '" + JSON.stringify({username:data.username,key:'password',value:data.new_password}) + "'", function (error, stdout, stderror) {
         res.redirect(url.format({ pathname: "/", query: {s: 'p'} }));
       });

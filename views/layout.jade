@@ -2,10 +2,29 @@ doctype html
 html
   head
     title= title
+    meta(name='viewport',content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/bootstrap/css/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
   body
-    block content
+    div.header
+      nav.navbar.navbar-toggleable-sm.navbar-light.sticky-top(style="background-color:#fff;")
+        div.navbar-header
+          button.navbar-toggler.navbar-toggler-right(type='button', data-toggle='collapse', data-target='#navbarNav', aria-controls='navbarNav', aria-expanded='false', aria-label='Toggle navigation')
+            span.navbar-toggler-icon
+          a.navbar-brand GradeNotify
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.mr-auto
+            li.nav-item.active
+              a.nav-link(data-target='#signup',data-toggle="tab") Sign Up
+            li.nav-item
+              a.nav-link(data-target='#edit',data-toggle="tab") Edit Account
+    br
+    body.content.bg-faded
+      div.container
+        div.row
+          div.col-12
+            block content
+    br
     script(src='/tether/js/tether.min.js')
     script(src='/bootstrap/js/bootstrap.min.js')

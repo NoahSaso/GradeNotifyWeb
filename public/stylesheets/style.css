@@ -1,5 +1,5 @@
 body {
-  padding: 50px;
+  /* padding: 50px; */
   font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -13,4 +13,15 @@ a {
 
 div.alert > p {
   margin-bottom: 0;
+}
+
+nav {
+	-moz-box-shadow: 0 0 6px 0 #000;
+	-webkit-box-shadow: 0 0 6px 0 #000;
+  box-shadow: 0 0 6px 0 #000;
+  height: 100%;
+}
+
+nav a.navbar-brand {
+  font-size: 24px;
 }

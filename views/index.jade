@@ -11,7 +11,7 @@ block content
       div(class='col-12')
         div(class='alert alert-danger')
           p= (query.e == 1 ? 'An account with that username is already registered.' : 'This username and password do not match.')
-  if 's' in query
+  if 's' in query && (query.s == 'e' || query.s == 'd' || query.s == 'p')
     div(class='row')
       div(class='col-12')
         div(class='alert alert-success')
@@ -21,71 +21,108 @@ block content
       div(class='col-12')
         div(class='alert alert-danger')
           p You must agree to the terms to use the service.
-  div(class='card')
-    div(class='card-header')
-      h4(class='card-title') What is this?
-    div(class='card-block')
-      p(class='card-text') GradeNotify is a service which sends grade-change alerts to your email to prevent your repetitive checking of grades. The email will be sent within about 30 minutes of when the grade change is saved by your teacher. It is only setup for Willow Glen High School right now.
-  br
-  div(class='card')
-    div(class='card-header')
-      select(id='action',name='action')
-        option(value='0',selected=true) Sign Up
-        option(value='1') Enable Existing Account
-        option(value='2') Disable Existing Account
-        option(value='3') Update Password
-    div(class='card-block')
-      form(action='/signup', method='post')
-        div(class='container-fluid')
-          div(class='row',id='names-block')
-            div(class='col-6')
-              label(for='first_name') First Name
-              input(id='first_name',type='text',name='first_name',class='form-control',required=true)
-            div(class='col-6')
-              label(for='last_name') Last Name
-              input(id='last_name',type='text',name='last_name',class='form-control',required=true)
+  div.tab-content
+    div.tab-pane.fade.show.active(id='signup',role='tabpanel')
+      div(class='card')
+        h5.card-header What is this?
+        div(class='card-block')
+          p(class='card-text') GradeNotify is a service which sends grade-change alerts to your email to prevent your repetitive checking of grades. The email will be sent within about 30 minutes of when the grade change is saved by your teacher. It is only setup for Willow Glen High School right now.
+      br
+      div(class='card')
+        h5.card-header Sign Up
+        div(class='card-block')
+          form(action='/signup', method='post')
+            div(class='container-fluid')
+              div(class='row')
+                div(class='col-6')
+                  label(for='first_name') First Name
+                  input(id='first_name',type='text',name='first_name',class='form-control',required=true)
+                div(class='col-6')
+                  label(for='last_name') Last Name
+                  input(id='last_name',type='text',name='last_name',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  label(for='email') Email
+                  input(id='email',type='text',name='email',class='form-control',required=true)
+                  br
+              div(class='row hidden')
+                div(class='col-12')
+                  p You <b>cannot</b> change your Infinite Campus password from here. This form is in case the password to your Infinite Campus account is different from the password used when you signed up for the GradeNotify (this) service in the past. You will need to do this if you ever change your password on Infinite Campus.
+              div(class='row')
+                div(class='col-12')
+                  label(for='username') Infinite Campus Username
+                  input(id='username',type='text',name='username',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  label(for='password') Infinite Campus Password
+                  input(id='password',type='password',name='password',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  label
+                    input(id='agree',type='checkbox',name='agree',required=true)
+                    |  By registering for this service, you agree to the following statements: 1) I consent to the viewing and storing of my grades through the use of the credentials I have provided above for the sole purpose of receiving grade-alert emails. 2) I acknowledge that this service has taken appropriate measures to encrypt and securely store my information. 3) I am 13 years or older.
+                  br
+                  br
+              div(class='row')
+                div(class='col-12')
+                  input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
+    div.tab-pane.fade(id='edit',role='tabpanel')
+      div(class='card')
+        h5.card-header Account Status
+        div(class='card-block')
+          form(method='post', id='status-form')
+            div(class='container-fluid')
+              div(class='row')
+                div(class='col-12')
+                  label(for='username') Infinite Campus Username
+                  input(id='username',type='text',name='username',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  label(for='password') Infinite Campus Password
+                  input(id='password',type='password',name='password',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  input(id='submit',type='submit',name='submit',value='Enable',class='form-control btn btn-primary btn-block')
               br
-          div(class='row',id='email-block')
-            div(class='col-12')
-              label(for='email') Email
-              input(id='email',type='text',name='email',class='form-control',required=true)
-              br
-          div(class='row hidden',id='update-password-msg')
-            div(class='col-12')
-              p You <b>cannot</b> change your Infinite Campus password from here. This form is in case the password to your Infinite Campus account is different from the password used when you signed up for the GradeNotify (this) service in the past. You will need to do this if you ever change your password on Infinite Campus.
-          div(class='row',id='username-block')
-            div(class='col-12')
-              label(for='username') Infinite Campus Username
-              input(id='username',type='text',name='username',class='form-control',required=true)
-              br
-          div(class='row',id='password-block')
-            div(class='col-12')
-              label(for='password') Infinite Campus Password
-              input(id='password',type='password',name='password',class='form-control',required=true)
-              br
-          div(class='row hidden',id='old-password-block')
-            div(class='col-12')
-              label(for='old-password') Old Infinite Campus Password
-              input(id='old-password',type='password',name='old_password',class='form-control',required=false)
-              br
-          div(class='row hidden',id='new-password-block')
-            div(class='col-12')
-              label(for='new-password') New Infinite Campus Password
-              input(id='new-password',type='password',name='new_password',class='form-control',required=false)
-              br
-          div(class='row',id='signup-check-block')
-            div(class='col-12')
-              label
-                input(id='agree',type='checkbox',name='agree',required=true)
-                |  By registering for this service, you agree to the following statements: 1) I consent to the viewing and storing of my grades through the use of the credentials I have provided above for the sole purpose of receiving grade-alert emails. 2) I acknowledge that this service has taken appropriate measures to encrypt and securely store my information. 3) I am 13 years or older.
-              br
-              br
-          div(class='row')
-            div(class='col-12')
-              input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
+              div(class='row')
+                div(class='col-12')
+                  input(id='submit',type='submit',name='submit',value='Disable',class='form-control btn btn-danger btn-block')
+      br
+      div(class='card')
+        h5.card-header Update Password
+        div(class='card-block')
+          form(action='/disable', method='post')
+            div(class='container-fluid')
+              div(class='row')
+                div(class='col-12')
+                  label(for='username') Infinite Campus Username
+                  input(id='username',type='text',name='username',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  label(for='old-password') Old Infinite Campus Password
+                  input(id='old-password',type='password',name='old_password',class='form-control',required=false)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  label(for='new-password') New Infinite Campus Password
+                  input(id='new-password',type='password',name='new_password',class='form-control',required=false)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
     
   br
-  p This service is in no way affiliated with or endorsed by Infinite Campus, Inc.
-  p Copyright © 2017 GradeNotify
+  div(class='card')
+    h5.card-header Legal
+    div(class='card-block')
+      p(class='card-text')
+        p This service is in no way affiliated with or endorsed by Infinite Campus, Inc.
+        p Copyright © 2017 GradeNotify
 
   script(src="/javascripts/index.js")
