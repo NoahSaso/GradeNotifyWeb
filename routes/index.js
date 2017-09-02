@@ -17,8 +17,8 @@ router.get('/', function (req, res, next) {
 /* POST signup */
 router.post('/signup', function (req, res, next) {
   data = req.body;
-
-  exec("/usr/bin/env python ic_grades/grades.py -z 123", puts);
+  console.log(data);
+  exec("./grades.py -a '${JSON.stringify(data)}'", puts);
 
   res.redirect(url.format({
     pathname: "/",

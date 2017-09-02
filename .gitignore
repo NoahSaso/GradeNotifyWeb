@@ -2,3 +2,4 @@ node_modules
 start.sh
 stop.sh
 restart.sh
+grades.py
