@@ -5,17 +5,28 @@ block content
     div(class='row')
       div(class='col-12')
         div(class='alert alert-success')
-          p(style='margin-bottom: 0') You have successfully registered.
+          p You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.
   if query.e == 1 || query.p == 1
     div(class='row')
       div(class='col-12')
         div(class='alert alert-danger')
-          p(style='margin-bottom: 0')= (query.e == 1 ? 'An account with that username is already registered.' : 'This username and password do not match.')
+          p= (query.e == 1 ? 'An account with that username is already registered.' : 'This username and password do not match.')
   if 's' in query
     div(class='row')
       div(class='col-12')
+        div(class='alert alert-success')
+          p= (query.s == 'e' ? 'Your account has been enabled.' : (query.s == 'd' ? 'Your account has been disabled.' : (query.s == 'p' ? 'Your password has been updated.' : '')))
+  if query.a == 1
+    div(class='row')
+      div(class='col-12')
         div(class='alert alert-danger')
-          p(style='margin-bottom: 0')= "Your account has been " + query.s + "."
+          p You must agree to the terms to use the service.
+  div(class='card')
+    div(class='card-header')
+      h4(class='card-title') What is this?
+    div(class='card-block')
+      p(class='card-text') GradeNotify is a service which sends grade-change alerts to your email to prevent your repetitive checking of grades. The email will be sent within about 30 minutes of when the grade change is saved by your teacher. It is only setup for Willow Glen High School right now.
+  br
   div(class='card')
     div(class='card-header')
       select(id='action',name='action')
@@ -39,6 +50,9 @@ block content
               label(for='email') Email
               input(id='email',type='text',name='email',class='form-control',required=true)
               br
+          div(class='row hidden',id='update-password-msg')
+            div(class='col-12')
+              p You <b>cannot</b> change your Infinite Campus password from here. This form is in case the password to your Infinite Campus account is different from the password used when you signed up for the GradeNotify (this) service in the past. You will need to do this if you ever change your password on Infinite Campus.
           div(class='row',id='username-block')
             div(class='col-12')
               label(for='username') Infinite Campus Username
@@ -59,8 +73,19 @@ block content
               label(for='new-password') New Infinite Campus Password
               input(id='new-password',type='password',name='new_password',class='form-control',required=false)
               br
+          div(class='row',id='signup-check-block')
+            div(class='col-12')
+              label
+                input(id='agree',type='checkbox',name='agree',required=true)
+                |  By registering for this service, you agree to the following statements: 1) I consent to the viewing and storing of my grades through the use of the credentials I have provided above for the sole purpose of receiving grade-alert emails. 2) I acknowledge that this service has taken appropriate measures to encrypt and securely store my information. 3) I am 13 years or older.
+              br
+              br
           div(class='row')
             div(class='col-12')
               input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
+    
+  br
+  p This service is in no way affiliated with or endorsed by Infinite Campus, Inc.
+  p Copyright © 2017 GradeNotify
 
   script(src="/javascripts/index.js")

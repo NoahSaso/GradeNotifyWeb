@@ -15,6 +15,8 @@ $(document).ready(function () {
                 show($('#password-block'));
                 hide($('#old-password-block'));
                 hide($('#new-password-block'));
+                hide($('#update-password-msg'));
+                show($('#signup-check-block'));
                 set_name('Sign Up');
                 set_action('/signup');
                 break;
@@ -26,6 +28,8 @@ $(document).ready(function () {
                 show($('#password-block'));
                 hide($('#old-password-block'));
                 hide($('#new-password-block'));
+                hide($('#update-password-msg'));
+                hide($('#signup-check-block'));
                 if (val == '1') {
                     set_name('Enable Account');
                     set_action('/enable');
@@ -41,6 +45,8 @@ $(document).ready(function () {
                 hide($('#password-block'));
                 show($('#old-password-block'));
                 show($('#new-password-block'));
+                show($('#update-password-msg'));
+                hide($('#signup-check-block'));
                 set_name('Update Password');
                 set_action('/update');
             default:
