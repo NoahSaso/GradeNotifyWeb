@@ -75,7 +75,7 @@ router.post('/signup', function (req, res, next) {
             res.send(JSON.stringify({ status: 'ok', message: 'You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.' }));
           });
         } else {
-          res.send(JSON.stringify({ status: 'error', message: 'That is not a valid Infinite Campus account.' }));
+          res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
         }
       });
     }
@@ -127,8 +127,14 @@ router.post('/update', function (req, res, next) {
     if (!valid) {
       res.send(JSON.stringify({ status: 'error', message: 'This username and password combination is incorrect.' }));
     } else {
-      exec("./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({username:data.username,key:'password',value:data.new_password}) + "'", function (error, stdout, stderror) {
-        res.send(JSON.stringify({ status: 'ok', message: 'Your password has been updated.' }));
+      validICAccount(data.username, data.new_password, function (valid) {
+        if (valid) {
+          exec("./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({ username: data.username, key: 'password', value: data.new_password }) + "'", function (error, stdout, stderror) {
+            res.send(JSON.stringify({ status: 'ok', message: 'Your password has been updated.' }));
+          });
+        } else {
+          res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
+        }
       });
     }
   });
