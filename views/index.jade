@@ -53,6 +53,11 @@ block content
       div(class='card')
         h5.card-header Account Status
         div(class='card-block')
+          div.container-fluid
+            div.row
+              div.col-12
+                p(class='card-text') If you have <b>already</b> signed up and want to pause the notifications, you can do so here with the "Disable" button. You may also resume them with the "Enable" button.
+          br
           form(method='post', id='status-form')
             div(class='container-fluid')
               div(class='row')
@@ -76,6 +81,11 @@ block content
       div(class='card')
         h5.card-header Update Password
         div(class='card-block')
+          div.container-fluid
+            div.row
+              div.col-12
+                p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
+          br
           form(action='/update', method='post', id='update-form')
             div(class='container-fluid')
               div(class='row')
