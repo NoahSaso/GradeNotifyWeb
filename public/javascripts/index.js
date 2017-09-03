@@ -77,7 +77,6 @@ $("form").submit(function (e) {
         dataType: 'json',
         data: data,
         success: function(data, textStatus, jqXHR) {
-            console.log(data);
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
                 $(e.target).find("input[type=text], input[type=password]").val("");
