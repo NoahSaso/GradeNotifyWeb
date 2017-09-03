@@ -56,11 +56,11 @@ router.post('/signup', function (req, res, next) {
 
   checkAccountExists(data.username, function (exists) {
     if (exists) {
-      res.redirect(url.format({ pathname: "/", query: {e: 1} }));
+      res.redirect(url.format({ pathname: "/#signup", query: {e: 1} }));
     } else {
       console.log(JSON.stringify(data));
       addAccount(data, function (){
-        res.redirect(url.format({ pathname: "/", query: {d: 1} }));
+        res.redirect(url.format({ pathname: "/#signup", query: {d: 1} }));
       });
     }
   });
@@ -74,10 +74,10 @@ router.post('/enable', function (req, res, next) {
 
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/", query: {p: 1} }));
+      res.redirect(url.format({ pathname: "/#edit", query: {p: 1} }));
     } else {
       exec("./grades.py -e '" + data.username + "'", function (error, stdout, stderror) {
-        res.redirect(url.format({ pathname: "/", query: {s: 'e'} }));
+        res.redirect(url.format({ pathname: "/#edit", query: {s: 'e'} }));
       });
     }
   });
@@ -89,10 +89,10 @@ router.post('/disable', function (req, res, next) {
   
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/", query: {p: 1} }));
+      res.redirect(url.format({ pathname: "/#edit", query: {p: 1} }));
     } else {
       exec("./grades.py -d '" + data.username + "'", function (error, stdout, stderror) {
-        res.redirect(url.format({ pathname: "/", query: {s: 'd'} }));
+        res.redirect(url.format({ pathname: "/#edit", query: {s: 'd'} }));
       });
     }
   });
@@ -105,10 +105,10 @@ router.post('/update', function (req, res, next) {
   
   validAccountPassword(data.username, data.old_password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/", query: {p: 1} }));
+      res.redirect(url.format({ pathname: "/#edit", query: {p: 1} }));
     } else {
       exec("./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({username:data.username,key:'password',value:data.new_password}) + "'", function (error, stdout, stderror) {
-        res.redirect(url.format({ pathname: "/", query: {s: 'p'} }));
+        res.redirect(url.format({ pathname: "/#edit", query: {s: 'p'} }));
       });
     }
   });
