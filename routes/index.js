@@ -80,10 +80,10 @@ router.post('/enable', function (req, res, next) {
 
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      // res.send(JSON.stringify({ status: 'error', message: 'This username and password combination is incorrect.' }));
+      res.send(JSON.stringify({ status: 'error', message: 'This username and password combination is incorrect.' }));
     } else {
       exec("./grades.py -e '" + data.username + "'", function (error, stdout, stderror) {
-        // res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
+        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
       });
     }
   });
