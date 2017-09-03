@@ -4,3 +4,4 @@ stop.sh
 restart.sh
 grades.py
 log/
+config.js

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var url = require('url');
+var config = require('../config.js');
 
 // Run command in terminal
 var exec = require('child_process').exec;
@@ -16,7 +17,7 @@ function checkAccountExists(username, callback) {
 }
 
 function validAccountPassword(username, password, callback) {
-  var query = "./grades.py -z 123 -v '" + JSON.stringify({ username: username, password: password }) + "'";
+  var query = "./grades.py -z \"" + config.salt + "\" -v '" + JSON.stringify({ username: username, password: password }) + "'";
   console.log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var valid = stdout.trim() == '1';
@@ -25,7 +26,7 @@ function validAccountPassword(username, password, callback) {
 }
 
 function addAccount(user_data, callback) {
-  var query = "./grades.py -z 123 -a '" + JSON.stringify(data) + "'";
+  var query = "./grades.py -z \"" + config.salt + "\"\"" + config.salt + "\" -a '" + JSON.stringify(data) + "'";
   console.log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     callback();
@@ -104,7 +105,7 @@ router.post('/update', function (req, res, next) {
     if (!valid) {
       res.redirect(url.format({ pathname: "/", query: {p: 1} }));
     } else {
-      exec("./grades.py -z 123 -m '" + JSON.stringify({username:data.username,key:'password',value:data.new_password}) + "'", function (error, stdout, stderror) {
+      exec("./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({username:data.username,key:'password',value:data.new_password}) + "'", function (error, stdout, stderror) {
         res.redirect(url.format({ pathname: "/", query: {s: 'p'} }));
       });
     }
