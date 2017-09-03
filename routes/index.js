@@ -45,6 +45,10 @@ function validICAccount(username, password, callback) {
   });
 }
 
+function sendGrades(username, callback) {
+  var query = "./grades.py"
+}
+
 /* GET home page */
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'GradeNotify' });
@@ -74,6 +78,7 @@ router.post('/signup', function (req, res, next) {
         if (valid) {
           addAccount(data, function () {
             res.send(JSON.stringify({ status: 'ok', message: 'You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.' }));
+            sendGrades(data.username);
           });
         } else {
           res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
