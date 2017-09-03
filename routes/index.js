@@ -36,6 +36,14 @@ function addAccount(user_data, callback) {
   });
 }
 
+function validICAccount(username, password, callback) {
+  var query = "./grades.py -i '" + JSON.stringify({ username: username, password: password }) + "'";
+  dev_log("Running: " + query);
+  exec(query, function (error, stdout, stderr) {
+    callback();
+  });
+}
+
 /* GET home page */
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'GradeNotify' });
@@ -61,8 +69,14 @@ router.post('/signup', function (req, res, next) {
     if (exists) {
       res.send(JSON.stringify({ status: 'error', message: 'An account with that username is already registered. Please use the enable form on the "Edit Account" page if your account is disabled.' }));
     } else {
-      addAccount(data, function () {
-        res.send(JSON.stringify({ status: 'ok', message: 'You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.' }));
+      validICAccount(data.username, data.password, function (valid) {
+        if (valid) {
+          addAccount(data, function () {
+            res.send(JSON.stringify({ status: 'ok', message: 'You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.' }));
+          });
+        } else {
+          res.send(JSON.stringify({ status: 'error', message: 'That is not a valid Infinite Campus account.' }));
+        }
       });
     }
   });
