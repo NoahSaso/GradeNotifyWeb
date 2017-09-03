@@ -81,6 +81,7 @@ $("form").submit(function (e) {
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
                 $(e.target).find("input[type=text], input[type=password]").val("");
+                $(e.target).find("input[type=checkbox]").attr('checked', false);
             } else {
                 toastr['error'](data['message']);
             }
