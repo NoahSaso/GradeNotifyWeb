@@ -40,7 +40,8 @@ function validICAccount(username, password, callback) {
   var query = "./grades.py -i '" + JSON.stringify({ username: username, password: password }) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
-    callback();
+    var exists = stdout.trim() == '1';
+    callback(exists);
   });
 }
 
