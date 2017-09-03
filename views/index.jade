@@ -1,26 +1,6 @@
 extends layout
 
 block content
-  if query.d == 1
-    div(class='row')
-      div(class='col-12')
-        div(class='alert alert-success')
-          p You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.
-  if query.e == 1 || query.p == 1
-    div(class='row')
-      div(class='col-12')
-        div(class='alert alert-danger')
-          p= (query.e == 1 ? 'An account with that username is already registered.' : 'This username and password do not match.')
-  if 's' in query && (query.s == 'e' || query.s == 'd' || query.s == 'p')
-    div(class='row')
-      div(class='col-12')
-        div(class='alert alert-success')
-          p= (query.s == 'e' ? 'Your account has been enabled.' : (query.s == 'd' ? 'Your account has been disabled.' : (query.s == 'p' ? 'Your password has been updated.' : '')))
-  if query.a == 1
-    div(class='row')
-      div(class='col-12')
-        div(class='alert alert-danger')
-          p You must agree to the terms to use the service.
   div.tab-content
     div.tab-pane.fade.show.active(id='signup',role='tabpanel')
       div(class='card')

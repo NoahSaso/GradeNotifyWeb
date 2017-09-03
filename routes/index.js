@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var url = require('url');
 var config = require('../config.js');
+var toastr = require('express-toastr');
 
 // Run command in terminal
 var exec = require('child_process').exec;
@@ -37,7 +38,7 @@ function addAccount(user_data, callback) {
 
 /* GET home page */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'GradeNotify', query: req.query });
+  res.render('index', { title: 'GradeNotify', req: req });
 });
 
 /* POST signup */
@@ -46,7 +47,8 @@ router.post('/signup', function (req, res, next) {
   data = req.body;
 
   if (data.agree != 'on') {
-    res.redirect(url.format({ pathname: "/", query: { a: 1 } }));
+    req.toastr.error('You must agree to the terms to use the service.');
+    res.redirect('/');
     return;
   }
 
@@ -56,11 +58,13 @@ router.post('/signup', function (req, res, next) {
 
   checkAccountExists(data.username, function (exists) {
     if (exists) {
-      res.redirect(url.format({ pathname: "/#signup", query: {e: 1} }));
+      req.toastr.error('An account with that username is already registered.');
+      res.redirect('/');
     } else {
       console.log(JSON.stringify(data));
-      addAccount(data, function (){
-        res.redirect(url.format({ pathname: "/#signup", query: {d: 1} }));
+      addAccount(data, function () {
+        req.toastr.success('You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.');
+        res.redirect('/');
       });
     }
   });
@@ -74,10 +78,12 @@ router.post('/enable', function (req, res, next) {
 
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/#edit", query: {p: 1} }));
+      req.toastr.error('This username and password do not match.');
+      res.redirect('/');
     } else {
       exec("./grades.py -e '" + data.username + "'", function (error, stdout, stderror) {
-        res.redirect(url.format({ pathname: "/#edit", query: {s: 'e'} }));
+        req.toastr.success('Your account has been enabled.');
+        res.redirect('/');
       });
     }
   });
@@ -89,10 +95,12 @@ router.post('/disable', function (req, res, next) {
   
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/#edit", query: {p: 1} }));
+      req.toastr.error('This username and password do not match.');
+      res.redirect('/');
     } else {
       exec("./grades.py -d '" + data.username + "'", function (error, stdout, stderror) {
-        res.redirect(url.format({ pathname: "/#edit", query: {s: 'd'} }));
+        req.toastr.success('Your account has been disabled.');
+        res.redirect('/');
       });
     }
   });
@@ -101,14 +109,15 @@ router.post('/disable', function (req, res, next) {
 /* POST update */
 router.post('/update', function (req, res, next) {
   data = req.body;
-  query = {};
   
   validAccountPassword(data.username, data.old_password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/#edit", query: {p: 1} }));
+      req.toastr.error('This username and password do not match.');
+      res.redirect('/');
     } else {
       exec("./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({username:data.username,key:'password',value:data.new_password}) + "'", function (error, stdout, stderror) {
-        res.redirect(url.format({ pathname: "/#edit", query: {s: 'p'} }));
+        req.toastr.success('Your password has been updated.');
+        res.redirect('/');
       });
     }
   });

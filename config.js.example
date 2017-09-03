@@ -1,3 +1,4 @@
 module.exports = {
-    salt: 'SALT_HERE'
+    salt: 'SALT_HERE',
+    secret: 'SECRET_HERE'
 }

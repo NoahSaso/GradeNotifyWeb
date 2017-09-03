@@ -5,8 +5,11 @@ html
     meta(name='viewport',content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='/bootstrap/css/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
+    link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css')
+    script(src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js')
   body
+    - toasts
     div.header
       nav.navbar.navbar-toggleable-sm.navbar-light.sticky-top(style="background-color:#fff;")
         div.navbar-header
