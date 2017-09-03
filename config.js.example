@@ -1,1 +1,3 @@
-var salt = 'SALT_HERE';
+module.exports = {
+    salt: 'SALT_HERE'
+}
