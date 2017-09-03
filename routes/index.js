@@ -11,7 +11,7 @@ function puts(error, stdout, stderr) { console.log(stdout, stderr); }
 function dev_log(string) { if (process.env.USER == 'noah') { console.log(string); } }
 
 function checkAccountExists(username, callback) {
-  var query = "./grades.py -x '" + username + "'";
+  var query = "./grades.py -x \"" + username + "\"";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var exists = stdout.trim() == '1';
@@ -29,7 +29,7 @@ function validAccountPassword(username, password, callback) {
 }
 
 function addAccount(user_data, callback) {
-  var query = "./grades.py -z \"" + config.salt + "\"\"" + config.salt + "\" -a '" + JSON.stringify(data) + "'";
+  var query = "./grades.py -z \"" + config.salt + "\" -a '" + JSON.stringify(data) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     callback();
