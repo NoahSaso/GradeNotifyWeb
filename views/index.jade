@@ -26,13 +26,14 @@ block content
                   label(for='email') Email
                   input(id='email',type='text',name='email',class='form-control',required=true)
                   br
-              div(class='row hidden')
-                div(class='col-12')
-                  p You <b>cannot</b> change your Infinite Campus password from here. This form is in case the password to your Infinite Campus account is different from the password used when you signed up for the GradeNotify (this) service in the past. You will need to do this if you ever change your password on Infinite Campus.
               div(class='row')
                 div(class='col-12')
                   label(for='username') Infinite Campus Username
                   input(id='username',type='text',name='username',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  p.card-text This won't work if you have any siblings on the same account (if you use your parent's account and have siblings). To make sure it works, you should use the account the school created for you (username: 's' + student ID).
                   br
               div(class='row')
                 div(class='col-12')
