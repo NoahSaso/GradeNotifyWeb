@@ -80,6 +80,7 @@ $("form").submit(function (e) {
             console.log(data);
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
+                $(e.target).find("input[type=text], input[type=password]").val("");
             } else {
                 toastr['error'](data['message']);
             }
