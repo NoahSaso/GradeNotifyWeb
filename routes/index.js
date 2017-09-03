@@ -38,7 +38,7 @@ function addAccount(user_data, callback) {
 
 /* GET home page */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'GradeNotify', req: req });
+  res.render('index', { title: 'GradeNotify' });
 });
 
 /* POST signup */
@@ -46,9 +46,10 @@ router.post('/signup', function (req, res, next) {
   
   data = req.body;
 
+  res.setHeader('Content-Type', 'application/json');
+
   if (data.agree != 'on') {
-    req.toastr.error('You must agree to the terms to use the service.');
-    res.redirect('/');
+    res.send(JSON.stringify({ status: 'error', message: 'You must agree to the terms to use the service.' }));
     return;
   }
 
@@ -58,12 +59,12 @@ router.post('/signup', function (req, res, next) {
 
   checkAccountExists(data.username, function (exists) {
     if (exists) {
-      req.toastr.error('An account with that username is already registered.');
-      res.redirect('/');
+      res.send(JSON.stringify({ status: 'error', message: 'An account with that username is already registered.' }));
     } else {
       console.log(JSON.stringify(data));
       addAccount(data, function () {
         req.toastr.success('You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.');
+        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
         res.redirect('/');
       });
     }
@@ -74,16 +75,15 @@ router.post('/signup', function (req, res, next) {
 /* POST enable */
 router.post('/enable', function (req, res, next) {
   data = req.body;
-  query = {};
+  
+  res.setHeader('Content-Type', 'application/json');
 
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      req.toastr.error('This username and password do not match.');
-      res.redirect('/');
+      // res.send(JSON.stringify({ status: 'error', message: 'This username and password combination is incorrect.' }));
     } else {
       exec("./grades.py -e '" + data.username + "'", function (error, stdout, stderror) {
-        req.toastr.success('Your account has been enabled.');
-        res.redirect('/');
+        // res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
       });
     }
   });
@@ -93,14 +93,14 @@ router.post('/enable', function (req, res, next) {
 router.post('/disable', function (req, res, next) {
   data = req.body;
   
+  res.setHeader('Content-Type', 'application/json');
+
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      req.toastr.error('This username and password do not match.');
-      res.redirect('/');
+      res.send(JSON.stringify({ status: 'error', message: 'This username and password combination is incorrect.' }));
     } else {
       exec("./grades.py -d '" + data.username + "'", function (error, stdout, stderror) {
-        req.toastr.success('Your account has been disabled.');
-        res.redirect('/');
+        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been disabled.' }));
       });
     }
   });
@@ -109,15 +109,15 @@ router.post('/disable', function (req, res, next) {
 /* POST update */
 router.post('/update', function (req, res, next) {
   data = req.body;
+
+  res.setHeader('Content-Type', 'application/json');
   
   validAccountPassword(data.username, data.old_password, function (valid) {
     if (!valid) {
-      req.toastr.error('This username and password do not match.');
-      res.redirect('/');
+      res.send(JSON.stringify({ status: 'error', message: 'This username and password combination is incorrect.' }));
     } else {
       exec("./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({username:data.username,key:'password',value:data.new_password}) + "'", function (error, stdout, stderror) {
-        req.toastr.success('Your password has been updated.');
-        res.redirect('/');
+        res.send(JSON.stringify({ status: 'ok', message: 'Your password has been updated.' }));
       });
     }
   });

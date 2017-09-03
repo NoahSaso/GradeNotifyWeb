@@ -9,7 +9,9 @@ html
     script(src='//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
     script(src='//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js')
   body
-    - toasts
+    div.modal#loading
+      div.center
+        img(src='/spin.gif')
     div.header
       nav.navbar.navbar-toggleable-sm.navbar-light.sticky-top(style="background-color:#fff;")
         div.navbar-header

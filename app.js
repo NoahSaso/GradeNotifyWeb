@@ -5,10 +5,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var flash = require('connect-flash');
-var session = require('express-session');
-var toastr = require('express-toastr');
-
 var config = require('./config.js');
 
 var index = require('./routes/index');
@@ -34,32 +30,13 @@ app.use('/tether', express.static(path.join(__dirname, 'node_modules/tether/dist
 
 app.use(express.static('public'));
 
-app.use(session({
-  secret: config.secret,
-  saveUninitialized: true,
-  resave: true
-}));
-app.use(flash());
-app.use(toastr({
-  closeButton: true,
-  debug: false,
-  newestOnTop: false,
-  progressBar: true,
-  positionClass: 'toast-top-right',
-  preventDuplicates: false,
-  onclick: null,
-  showDuration: 400,
-  hideDuration: 600,
-  timeOut: 10000,
-  extendedTimeOut: 7500,
-  showEasing: 'swing',
-  hideEasing: 'linear',
-  showMethod: 'fadeIn',
-  hideMethod: 'fadeOut'
-}));
+app.use(function (req, res, next) {
+  res.redirect('/');
+})
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
+  res.redirect('/');
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
@@ -70,7 +47,6 @@ app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.locals.toasts = req.toastr.render();
 
   // render the error page
   res.status(err.status || 500);
