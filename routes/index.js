@@ -59,7 +59,7 @@ router.post('/signup', function (req, res, next) {
 
   checkAccountExists(data.username, function (exists) {
     if (exists) {
-      res.send(JSON.stringify({ status: 'error', message: 'An account with that username is already registered.' }));
+      res.send(JSON.stringify({ status: 'error', message: 'An account with that username is already registered. Please use the enable form on the "Edit Account" page if your account is disabled.' }));
     } else {
       addAccount(data, function () {
         res.send(JSON.stringify({ status: 'ok', message: 'You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.' }));
