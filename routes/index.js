@@ -46,7 +46,9 @@ function validICAccount(username, password, callback) {
 }
 
 function sendGrades(username, callback) {
-  var query = "./grades.py"
+  var query = "./grades.py -z \"" + config.salt + "\" -g \"" + username + "\"";
+  dev_log("Running: " + query);
+  exec(query, puts);
 }
 
 /* GET home page */
