@@ -61,11 +61,8 @@ router.post('/signup', function (req, res, next) {
     if (exists) {
       res.send(JSON.stringify({ status: 'error', message: 'An account with that username is already registered.' }));
     } else {
-      console.log(JSON.stringify(data));
       addAccount(data, function () {
-        req.toastr.success('You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.');
-        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
-        res.redirect('/');
+        res.send(JSON.stringify({ status: 'ok', message: 'You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.' }));
       });
     }
   });

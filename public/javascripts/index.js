@@ -39,14 +39,22 @@ $(document).ready(function () {
         });
 });
 
-// Form stuff
-$("form#status-form").submit(function(e) {
+// Form set action based on button click
+$("form#status-form").submit(function (e) {
     var btn_pressed_label = $(e.target).find('input[type=submit][clicked=true]').attr('value');
     if (btn_pressed_label == 'Enable') {
         $(this).attr('action', '/enable');
     } else if (btn_pressed_label == 'Disable') {
         $(this).attr('action', '/disable');
     }
+});
+
+// Prevent enter key for enable/disable form
+$('form#status-form').bind("keypress", function(e) {
+  if (e.keyCode == 13) {               
+    e.preventDefault();
+    return false;
+  }
 });
 
 // Form button has clicked value so we can identify later
