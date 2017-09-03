@@ -7,9 +7,11 @@ var config = require('../config.js');
 var exec = require('child_process').exec;
 function puts(error, stdout, stderr) { console.log(stdout, stderr); }
 
+function dev_log(string) { if (process.env.USER == 'noah') { console.log(string); } }
+
 function checkAccountExists(username, callback) {
   var query = "./grades.py -x '" + username + "'";
-  console.log("Running: " + query);
+  dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var exists = stdout.trim() == '1';
     callback(exists);
@@ -18,7 +20,7 @@ function checkAccountExists(username, callback) {
 
 function validAccountPassword(username, password, callback) {
   var query = "./grades.py -z \"" + config.salt + "\" -v '" + JSON.stringify({ username: username, password: password }) + "'";
-  console.log("Running: " + query);
+  dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var valid = stdout.trim() == '1';
     callback(valid);
@@ -27,7 +29,7 @@ function validAccountPassword(username, password, callback) {
 
 function addAccount(user_data, callback) {
   var query = "./grades.py -z \"" + config.salt + "\"\"" + config.salt + "\" -a '" + JSON.stringify(data) + "'";
-  console.log("Running: " + query);
+  dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     callback();
   });
@@ -72,7 +74,7 @@ router.post('/enable', function (req, res, next) {
 
   validAccountPassword(data.username, data.password, function (valid) {
     if (!valid) {
-      res.redirect(url.format({ pathname: "/#hi", query: {p: 1} }));
+      res.redirect(url.format({ pathname: "/", query: {p: 1} }));
     } else {
       exec("./grades.py -e '" + data.username + "'", function (error, stdout, stderror) {
         res.redirect(url.format({ pathname: "/", query: {s: 'e'} }));
