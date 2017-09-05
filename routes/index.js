@@ -72,7 +72,9 @@ router.post('/signup', function (req, res, next) {
   
   data = req.body;
   for (var key in data) {
-    data[key] = data[key].trim();
+    if (key != 'password') {
+      data[key] = data[key].trim();
+    }
   }
 
   res.setHeader('Content-Type', 'application/json');
@@ -113,7 +115,9 @@ router.post('/signup', function (req, res, next) {
 router.post('/enable', function (req, res, next) {
   data = req.body;
   for (var key in data) {
-    data[key] = data[key].trim();
+    if (key != 'password') {
+      data[key] = data[key].trim();
+    }
   }
   
   res.setHeader('Content-Type', 'application/json');
@@ -133,7 +137,9 @@ router.post('/enable', function (req, res, next) {
 router.post('/disable', function (req, res, next) {
   data = req.body;
   for (var key in data) {
-    data[key] = data[key].trim();
+    if (key != 'password') {
+      data[key] = data[key].trim();
+    }
   }
   
   res.setHeader('Content-Type', 'application/json');
@@ -153,7 +159,9 @@ router.post('/disable', function (req, res, next) {
 router.post('/update', function (req, res, next) {
   data = req.body;
   for (var key in data) {
-    data[key] = data[key].trim();
+    if (key != 'password') {
+      data[key] = data[key].trim();
+    }
   }
 
   res.setHeader('Content-Type', 'application/json');
