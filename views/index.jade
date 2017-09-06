@@ -33,12 +33,13 @@ block content
                   br
               div(class='row')
                 div(class='col-12')
-                  p.card-text This won't work if you have any siblings on the same account (if you use your parent's account and have siblings). To make sure it works, you should use the account the school created for you (username: 's' + student ID).
+                  label(for='password') Infinite Campus Password
+                  input(id='password',type='password',name='password',class='form-control',required=true)
                   br
               div(class='row')
                 div(class='col-12')
-                  label(for='password') Infinite Campus Password
-                  input(id='password',type='password',name='password',class='form-control',required=true)
+                  label(for='student_id') Student ID Number
+                  input(id='student_id',type='text',name='student_id',class='form-control',required=true)
                   br
               div(class='row')
                 div(class='col-12')
@@ -63,8 +64,8 @@ block content
             div(class='container-fluid')
               div(class='row')
                 div(class='col-12')
-                  label(for='username') Infinite Campus Username
-                  input(id='username',type='text',name='username',class='form-control',required=true)
+                  label(for='student_id') Student ID Number
+                  input(id='student_id',type='text',name='student_id',class='form-control',required=true)
                   br
               div(class='row')
                 div(class='col-12')
@@ -93,6 +94,11 @@ block content
                 div(class='col-12')
                   label(for='username') Infinite Campus Username
                   input(id='username',type='text',name='username',class='form-control',required=true)
+                  br
+              div(class='row')
+                div(class='col-12')
+                  label(for='student_id') Student ID Number
+                  input(id='student_id',type='text',name='student_id',class='form-control',required=true)
                   br
               div(class='row')
                 div(class='col-12')
