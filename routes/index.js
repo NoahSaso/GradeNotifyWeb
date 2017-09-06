@@ -64,7 +64,7 @@ function sendGrades(username, callback) {
 
 /* GET home page */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'GradeNotify' });
+  res.render('index', { title: 'Grade Notify' });
 });
 
 /* POST signup */
