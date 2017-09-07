@@ -34,7 +34,15 @@ function validAccountPassword(student_id, password, callback) {
 }
 
 function addAccount(user_data, callback) {
-  var query = "./grades.py -z \"" + config.salt + "\" -a '" + JSON.stringify(data) + "'";
+  var query = "./grades.py -z \"" + config.salt + "\" -a '" + JSON.stringify(user_data) + "'";
+  dev_log("Running: " + query);
+  exec(query, function (error, stdout, stderr) {
+    callback();
+  });
+}
+
+function modifyAccount(student_id, key, value, callback) {
+  var query = "./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({ student_id: student_id, key: key, value: value }) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     callback();
@@ -126,7 +134,7 @@ router.post('/enable', function (req, res, next) {
     if (!valid) {
       res.send(JSON.stringify({ status: 'error', message: 'These credentials are incorrect.' }));
     } else {
-      exec("./grades.py -m '" + JSON.stringify({ student_id: data.student_id, key: 'enabled', value: 1 }) + "'", function (error, stdout, stderror) {
+      modifyAccount(data.student_id, 'enabled', 1, function (error, stdout, stderr) {
         res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
       });
     }
@@ -148,7 +156,7 @@ router.post('/disable', function (req, res, next) {
     if (!valid) {
       res.send(JSON.stringify({ status: 'error', message: 'These credentials are incorrect.' }));
     } else {
-      exec("./grades.py -m '" + JSON.stringify({ student_id: data.student_id, key: 'enabled', value: 0 }) + "'", function (error, stdout, stderror) {
+      modifyAccount(data.student_id, 'enabled', 0, function (error, stdout, stderr) {
         res.send(JSON.stringify({ status: 'ok', message: 'Your account has been disabled.' }));
       });
     }
@@ -175,7 +183,7 @@ router.post('/update', function (req, res, next) {
           res.send(JSON.stringify({ status: 'error', message: error }));
         } else {
           if (valid) {
-            exec("./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({ student_id: data.student_id, key: 'password', value: data.new_password }) + "'", function (error, stdout, stderror) {
+            modifyAccount(data.student_id, 'password', data.new_password, function (error, stdout, stderr) {
               res.send(JSON.stringify({ status: 'ok', message: 'Your password has been updated.' }));
             });
           } else {
