@@ -126,7 +126,7 @@ router.post('/enable', function (req, res, next) {
     if (!valid) {
       res.send(JSON.stringify({ status: 'error', message: 'These credentials are incorrect.' }));
     } else {
-      exec("./grades.py -e '" + data.student_id + "'", function (error, stdout, stderror) {
+      exec("./grades.py -m '" + JSON.stringify({ student_id: data.student_id, key: 'enabled', value: 1 }) + "'", function (error, stdout, stderror) {
         res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
       });
     }
@@ -148,7 +148,7 @@ router.post('/disable', function (req, res, next) {
     if (!valid) {
       res.send(JSON.stringify({ status: 'error', message: 'These credentials are incorrect.' }));
     } else {
-      exec("./grades.py -d '" + data.student_id + "'", function (error, stdout, stderror) {
+      exec("./grades.py -m '" + JSON.stringify({ student_id: data.student_id, key: 'enabled', value: 0 }) + "'", function (error, stdout, stderror) {
         res.send(JSON.stringify({ status: 'ok', message: 'Your account has been disabled.' }));
       });
     }
