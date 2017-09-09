@@ -32,7 +32,7 @@ function validAccountPassword(student_id, password, callback) {
     var user = {};
     if (valid) {
       user = JSON.parse(stdout.trim());
-      if (user.hasOwnProperty('phone_email') && user.phone_email.indexOf('@') > -1) {
+      if (user.hasOwnProperty('phone_email') && user.phone_email && user.phone_email.indexOf('@') > -1) {
         user.phone = user.phone_email.split('@')[0];
         user.carrier = user.phone_email.split('@')[1];
         delete user.phone_email;
@@ -90,6 +90,7 @@ function authenticate(req, res, next) {
 
 function authenticatePremium(req, res, next) {
   // logged in and premium
+  print(req.session);
   if (req.session.hasOwnProperty('student') && !!req.session.student && req.session.premium) {
     next();
   } else {
