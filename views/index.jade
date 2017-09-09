@@ -53,67 +53,91 @@ block content
                   input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
     div.tab-pane.fade(id='edit',role='tabpanel')
       div(class='card')
-        h5.card-header Account Status
+        if !loggedIn
+          h5.card-header Log In
         div(class='card-block')
-          div.container-fluid
-            div.row
-              div.col-12
-                p(class='card-text') If you have <b>already</b> signed up and want to pause the notifications, you can do so here with the "Disable" button. You may also resume them with the "Enable" button.
-          br
-          form(method='post', id='status-form')
+          form(action=(loggedIn ? '/logout' : '/login'), method='post', id='login-form')
             div(class='container-fluid')
+              if !loggedIn
+                div(class='row')
+                  div(class='col-12')
+                    label(for='student_id') Student ID Number
+                    input(id='student_id',type='text',name='student_id',class='form-control',required=true)
+                    br
+                div(class='row')
+                  div(class='col-12')
+                    label(for='password') Infinite Campus Password
+                    input(id='password',type='password',name='password',class='form-control',required=true)
+                    br
               div(class='row')
                 div(class='col-12')
-                  label(for='student_id') Student ID Number
-                  input(id='student_id',type='text',name='student_id',class='form-control',required=true)
-                  br
-              div(class='row')
-                div(class='col-12')
-                  label(for='password') Infinite Campus Password
-                  input(id='password',type='password',name='password',class='form-control',required=true)
-                  br
-              div(class='row')
-                div(class='col-12')
-                  input(id='submit',type='submit',name='submit',value='Enable',class='form-control btn btn-primary btn-block')
-              br
-              div(class='row')
-                div(class='col-12')
-                  input(id='submit',type='submit',name='submit',value='Disable',class='form-control btn btn-danger btn-block')
-      br
-      div(class='card')
-        h5.card-header Update Password
-        div(class='card-block')
-          div.container-fluid
-            div.row
-              div.col-12
-                p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
+                  input(id='submit',type='submit',name='submit',value=(loggedIn ? 'Log Out' : 'Log In'),class='form-control btn btn-primary btn-block')
+      br 
+      if loggedIn
+        div(class='card')
+          h5.card-header Account Status
+          div(class='card-block')
+            div.container-fluid
+              div.row
+                div.col-12
+                  p(class='card-text') If you have <b>already</b> signed up and want to pause the notifications, you can do so here with the "Disable" button. You may also resume them with the "Enable" button.
+            br
+            form(method='post', id='status-form')
+              div(class='container-fluid')
+                div(class='row')
+                  div(class='col-12')
+                    input(id='submit',type='submit',name='submit',value='Enable',class='form-control btn btn-primary btn-block')
+                br
+                div(class='row')
+                  div(class='col-12')
+                    input(id='submit',type='submit',name='submit',value='Disable',class='form-control btn btn-danger btn-block')
+        br
+        div(class='card')
+          h5.card-header Update Password
+          div(class='card-block')
+            div.container-fluid
+              div.row
+                div.col-12
+                  p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
+            br
+            form(action='/update', method='post', id='update-form')
+              div(class='container-fluid')
+                div(class='row')
+                  div(class='col-12')
+                    label(for='new-password') New Infinite Campus Password
+                    input(id='new-password',type='password',name='new_password',class='form-control',required=false)
+                    br
+                div(class='row')
+                  div(class='col-12')
+                    input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
+        if student['premium']
           br
-          form(action='/update', method='post', id='update-form')
-            div(class='container-fluid')
-              div(class='row')
-                div(class='col-12')
-                  label(for='username') Infinite Campus Username
-                  input(id='username',type='text',name='username',class='form-control',required=true)
-                  br
-              div(class='row')
-                div(class='col-12')
-                  label(for='student_id') Student ID Number
-                  input(id='student_id',type='text',name='student_id',class='form-control',required=true)
-                  br
-              div(class='row')
-                div(class='col-12')
-                  label(for='old-password') Old Infinite Campus Password
-                  input(id='old-password',type='password',name='old_password',class='form-control',required=false)
-                  br
-              div(class='row')
-                div(class='col-12')
-                  label(for='new-password') New Infinite Campus Password
-                  input(id='new-password',type='password',name='new_password',class='form-control',required=false)
-                  br
-              div(class='row')
-                div(class='col-12')
-                  input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
-    
+          div(class='card')
+            h5.card-header Update Phone
+            div(class='card-block')
+              form(action='/update/phone', method='post', id='account-form')
+                div(class='container-fluid')
+                  div.row
+                    div.col-12
+                      label(for='phone') Phone
+                      input(id='phone',type='text',name='phone',class='form-control',value=student['phone'])
+                      br
+                  div.row
+                    div.col-12
+                      label(for='carrier') Carrier
+                      select(id='carrier',name='carrier',class='form-control')
+                        if student['carrier'] == 'vzwpix.com'
+                          option(value='vzwpix.com', selected='selected') Verizon
+                        else
+                          option(value='vzwpix.com') Verizon
+                        if student['carrier'] == 'txt.att.net'
+                          option(value='txt.att.net', selected='selected') AT&T
+                        else
+                          option(value='txt.att.net') AT&T
+                      br
+                  div(class='row')
+                    div(class='col-12')
+                      input(id='submit',type='submit',name='submit',value='Update Phone',class='form-control btn btn-primary btn-block')
   br
   div(class='card')
     h5.card-header Legal

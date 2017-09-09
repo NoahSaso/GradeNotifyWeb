@@ -28,8 +28,17 @@ function validAccountPassword(student_id, password, callback) {
   var query = "./grades.py -z \"" + config.salt + "\" -v '" + JSON.stringify({ student_id: student_id, password: password }) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
-    var valid = stdout.trim() == '1';
-    callback(valid);
+    var valid = stdout.trim() != '0';
+    var user = {};
+    if (valid) {
+      user = JSON.parse(stdout.trim());
+      if (user.hasOwnProperty('phone_email') && user.phone_email.indexOf('@') > -1) {
+        user.phone = user.phone_email.split('@')[0];
+        user.carrier = user.phone_email.split('@')[1];
+        delete user.phone_email;
+      }
+    }
+    callback(valid, user);
   });
 }
 
@@ -70,15 +79,74 @@ function sendGrades(student_id, callback) {
   exec(query, puts);
 }
 
+function authenticate(req, res, next) {
+  // logged in
+  if (req.session.hasOwnProperty('student') && !!req.session.student) {
+    next();
+  } else {
+    res.redirect('/');
+  }
+}
+
+function authenticatePremium(req, res, next) {
+  // logged in and premium
+  if (req.session.hasOwnProperty('student') && !!req.session.student && req.session.premium) {
+    next();
+  } else {
+    res.redirect('/');
+  }
+}
+
 /* GET home page */
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Grade Notify' });
+  var loggedIn = (req.session.hasOwnProperty('student') && !!req.session.student);
+  res.render('index', { title: 'Grade Notify', loggedIn: loggedIn, student: req.session.student});
+});
+
+/* POST login */
+router.post('/login', function (req, res, next) {
+
+  var data = req.body;
+  for (var key in data) {
+    if (key != 'password') {
+      data[key] = data[key].trim();
+    }
+  }
+
+  res.setHeader('Content-Type', 'application/json');
+  
+  checkAccountExists(data.student_id, function (exists, error) {
+    if (!exists) {
+      res.send(JSON.stringify({ status: 'error', message: 'These credentials are invalid.' }));
+    } else {
+      validAccountPassword(data.student_id, data.password, function (valid, user) {
+        if (!valid) {
+          res.send(JSON.stringify({ status: 'error', message: 'These credentials are invalid.' }));
+        } else {
+          req.session.student = user;
+          res.send(JSON.stringify({ status: 'ok' }));
+        }
+      });
+    }
+  });
+
+});
+
+/* GET logout */
+router.post('/logout', authenticate, function (req, res, next) {
+  
+  res.setHeader('Content-Type', 'application/json');
+
+  delete req.session.student;
+
+  res.send(JSON.stringify({ status: 'ok' }));
+
 });
 
 /* POST signup */
 router.post('/signup', function (req, res, next) {
   
-  data = req.body;
+  var data = req.body;
   for (var key in data) {
     if (key != 'password') {
       data[key] = data[key].trim();
@@ -120,8 +188,9 @@ router.post('/signup', function (req, res, next) {
 });
 
 /* POST enable */
-router.post('/enable', function (req, res, next) {
-  data = req.body;
+router.post('/enable', authenticate, function (req, res, next) {
+
+  var data = req.body;
   for (var key in data) {
     if (key != 'password') {
       data[key] = data[key].trim();
@@ -130,20 +199,16 @@ router.post('/enable', function (req, res, next) {
   
   res.setHeader('Content-Type', 'application/json');
 
-  validAccountPassword(data.student_id, data.password, function (valid) {
-    if (!valid) {
-      res.send(JSON.stringify({ status: 'error', message: 'These credentials are incorrect.' }));
-    } else {
-      modifyAccount(data.student_id, 'enabled', 1, function (error, stdout, stderr) {
-        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
-      });
-    }
+  modifyAccount(req.session.student['student_id'], 'enabled', 1, function (error, stdout, stderr) {
+    res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
   });
+
 });
 
 /* POST disable */
-router.post('/disable', function (req, res, next) {
-  data = req.body;
+router.post('/disable', authenticate, function (req, res, next) {
+
+  var data = req.body;
   for (var key in data) {
     if (key != 'password') {
       data[key] = data[key].trim();
@@ -152,20 +217,16 @@ router.post('/disable', function (req, res, next) {
   
   res.setHeader('Content-Type', 'application/json');
 
-  validAccountPassword(data.student_id, data.password, function (valid) {
-    if (!valid) {
-      res.send(JSON.stringify({ status: 'error', message: 'These credentials are incorrect.' }));
-    } else {
-      modifyAccount(data.student_id, 'enabled', 0, function (error, stdout, stderr) {
-        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been disabled.' }));
-      });
-    }
+  modifyAccount(req.session.student['student_id'], 'enabled', 0, function (error, stdout, stderr) {
+    res.send(JSON.stringify({ status: 'ok', message: 'Your account has been disabled.' }));
   });
+
 });
 
 /* POST update */
-router.post('/update', function (req, res, next) {
-  data = req.body;
+router.post('/update', authenticate, function (req, res, next) {
+
+  var data = req.body;
   for (var key in data) {
     if (key != 'password') {
       data[key] = data[key].trim();
@@ -174,25 +235,36 @@ router.post('/update', function (req, res, next) {
 
   res.setHeader('Content-Type', 'application/json');
   
-  validAccountPassword(data.student_id, data.old_password, function (valid) {
-    if (!valid) {
-      res.send(JSON.stringify({ status: 'error', message: 'These credentials are incorrect.' }));
+  validICAccount(req.session.student['username'], req.session.student['student_id'], data.new_password, function (valid, error) {
+    if (error.length > 0) {
+      res.send(JSON.stringify({ status: 'error', message: error }));
     } else {
-      validICAccount(data.username, data.student_id, data.new_password, function (valid, error) {
-        if (error.length > 0) {
-          res.send(JSON.stringify({ status: 'error', message: error }));
-        } else {
-          if (valid) {
-            modifyAccount(data.student_id, 'password', data.new_password, function (error, stdout, stderr) {
-              res.send(JSON.stringify({ status: 'ok', message: 'Your password has been updated.' }));
-            });
-          } else {
-            res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
-          }
-        }
-      });
+      if (valid) {
+        modifyAccount(req.session.student['student_id'], 'password', data.new_password, function (error, stdout, stderr) {
+          res.send(JSON.stringify({ status: 'ok', message: 'Your password has been updated.' }));
+        });
+      } else {
+        res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
+      }
     }
   });
+
+});
+
+/* POST update/phone */
+router.post('/update/phone', authenticatePremium, function (req, res, next) {
+
+  var data = req.body;
+
+  res.setHeader('Content-Type', 'application/json');
+  
+  var phoneEmail = data['phone'] + "@" + data['carrier'];
+  modifyAccount(req.session.student['student_id'], 'phone_email', phoneEmail, function (error, stdout, stderr) {
+    req.session.student['phone'] = data['phone'];
+    req.session.student['carrier'] = data['carrier'];
+    res.send(JSON.stringify({ status: 'ok', message: 'Your phone has been updated.' }));
+  });
+
 });
 
 module.exports = router;

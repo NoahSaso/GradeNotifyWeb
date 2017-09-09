@@ -78,9 +78,15 @@ $("form").submit(function (e) {
         data: data,
         success: function(data, textStatus, jqXHR) {
             if (data['status'] === 'ok') {
-                toastr['success'](data['message']);
-                $(e.target).find("input[type=text], input[type=password]").val("");
-                $(e.target).find("input[type=checkbox]").attr('checked', false);
+                if (action == '/login' || action == '/logout') {
+                    location.reload();
+                } else {
+                    toastr['success'](data['message']);
+                    if (action.indexOf('/update/') != 0) {
+                        $(e.target).find("input[type=text], input[type=password]").val("");
+                        $(e.target).find("input[type=checkbox]").attr('checked', false);
+                    }
+                }
             } else {
                 toastr['error'](data['message']);
             }
