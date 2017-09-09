@@ -90,8 +90,7 @@ function authenticate(req, res, next) {
 
 function authenticatePremium(req, res, next) {
   // logged in and premium
-  console.log(JSON.stringify(req.session));
-  if (req.session.hasOwnProperty('student') && !!req.session.student && req.session.premium) {
+  if (req.session.hasOwnProperty('student') && !!req.session.student && req.session.student.premium) {
     next();
   } else {
     res.redirect('/');
