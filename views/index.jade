@@ -38,8 +38,8 @@ block content
                   br
               div(class='row')
                 div(class='col-12')
-                  label(for='student_id') Student ID Number
-                  input(id='student_id',type='text',name='student_id',class='form-control',required=true)
+                  label(for='studentId') Student ID Number
+                  input(id='studentId',type='text',name='studentId',class='form-control',required=true)
                   br
               div(class='row')
                 div(class='col-12')
@@ -61,8 +61,8 @@ block content
               if !loggedIn
                 div(class='row')
                   div(class='col-12')
-                    label(for='student_id') Student ID Number
-                    input(id='student_id',type='text',name='student_id',class='form-control',required=true)
+                    label(for='studentId') Student ID Number
+                    input(id='studentId',type='text',name='studentId',class='form-control',required=true)
                     br
                 div(class='row')
                   div(class='col-12')
@@ -72,8 +72,35 @@ block content
               div(class='row')
                 div(class='col-12')
                   input(id='submit',type='submit',name='submit',value=(loggedIn ? 'Log Out' : 'Log In'),class='form-control btn btn-primary btn-block')
-      br 
-      if loggedIn
+      if isAdmin
+        br
+        div(class='card')
+          h5.card-header Admin Portal
+          div(class='card-block')
+            table.table
+              thead
+                tr
+                  th Status
+                  th Name
+                  th Student ID
+                  th Email
+                  th Phone
+                  th Premium
+              tbody
+                - each student in students.all
+                  tr
+                    td
+                      button.btn.btn-secondary.btn-block.account-status(data-student-id=student.student_id)= (students.enabled.includes(student) ? 'Enabled' : 'Disabled')
+                    td
+                      input.account-text.form-control(type='text', data-key='name', data-student-id=student.student_id, value=student.name)
+                    td= student.student_id
+                    td
+                      input.account-text.form-control(type='text', data-key='email', data-student-id=student.student_id, value=student.email)
+                    td
+                      input.account-text.form-control(type='text', data-key='phone_email', data-student-id=student.student_id, value=student.phone_email)
+                    td
+                      button.btn.btn-secondary.btn-block.account-premium(data-student-id=student.student_id)= (student.premium ? 'Premium' : 'Not Premium')
+      else if loggedIn
         div(class='card')
           h5.card-header Account Status
           div(class='card-block')
@@ -91,25 +118,6 @@ block content
                 div(class='row')
                   div(class='col-12')
                     input(id='submit',type='submit',name='submit',value='Disable',class='form-control btn btn-danger btn-block')
-        br
-        div(class='card')
-          h5.card-header Update Password
-          div(class='card-block')
-            div.container-fluid
-              div.row
-                div.col-12
-                  p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
-            br
-            form(action='/update', method='post', id='update-form')
-              div(class='container-fluid')
-                div(class='row')
-                  div(class='col-12')
-                    label(for='new-password') New Infinite Campus Password
-                    input(id='new-password',type='password',name='new_password',class='form-control',required=false)
-                    br
-                div(class='row')
-                  div(class='col-12')
-                    input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
         if student['premium']
           br
           div(class='card')
@@ -138,12 +146,32 @@ block content
                   div(class='row')
                     div(class='col-12')
                       input(id='submit',type='submit',name='submit',value='Update Phone',class='form-control btn btn-primary btn-block')
+      if loggedIn
+        br
+        div(class='card')
+          h5.card-header Update Password
+          div(class='card-block')
+            div.container-fluid
+              div.row
+                div.col-12
+                  p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
+            br
+            form(action='/update', method='post', id='update-form')
+              div(class='container-fluid')
+                div(class='row')
+                  div(class='col-12')
+                    label(for='new-password') New Infinite Campus Password
+                    input(id='new-password',type='password',name='new_password',class='form-control',required=false)
+                    br
+                div(class='row')
+                  div(class='col-12')
+                    input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
   br
   div(class='card')
     h5.card-header Legal
     div(class='card-block')
       p(class='card-text')
         p This service is in no way affiliated with or endorsed by Infinite Campus, Inc.
-        p Copyright © Noah Saso 2017 GradeNotify
+        p Copyright © Noah Saso 2017 Grade Notify
 
   script(src="/javascripts/index.js")

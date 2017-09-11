@@ -15,12 +15,12 @@ function checkAccountExists(student_id, callback) {
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var response = stdout.trim();
-    var error = "";
+    var localError = "";
     if (response.indexOf("\n") > -1) {
-      error = response.split("\n")[0];
+      localError = response.split("\n")[0];
     }
     var exists = stdout.trim() == '1';
-    callback(exists, error);
+    callback(exists, localError);
   });
 }
 
@@ -54,7 +54,7 @@ function modifyAccount(student_id, key, value, callback) {
   var query = "./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({ student_id: student_id, key: key, value: value }) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
-    callback();
+    callback(error, stdout, stderr);
   });
 }
 
@@ -64,12 +64,12 @@ function validICAccount(username, student_id, password, callback) {
   exec(query, function (error, stdout, stderr) {
     var response = stdout.trim();
     var exists = stdout.trim() == '1';
-    var error_msg = "";
+    var errorMsg = "";
     if (response.indexOf("\n") > -1) {
-      error_msg = response.split("\n")[0];
+      errorMsg = response.split("\n")[0];
       exists = response.split("\n")[1] == '1';
     }
-    callback(exists, error_msg);
+    callback(exists, errorMsg);
   });
 }
 
@@ -77,6 +77,16 @@ function sendGrades(student_id, callback) {
   var query = "./grades.py -z \"" + config.salt + "\" -g \"" + student_id + "\"";
   dev_log("Running: " + query);
   exec(query, puts);
+}
+
+function getUserList(callback) {
+  var query = "./grades.py -l -j";
+  dev_log("Running: " + query);
+  exec(query, function (error, stdout, stderr) {
+    var response = stdout.trim();
+    var students = JSON.parse(response);
+    callback(students);
+  });
 }
 
 function authenticate(req, res, next) {
@@ -97,14 +107,46 @@ function authenticatePremium(req, res, next) {
   }
 }
 
+function authenticateAdmin(req, res, next) {
+  // logged in and admin
+  if (req.session.hasOwnProperty('student') && !!req.session.student && req.session.student['student_id'] == '76735' && req.session.student['name'] == 'Noah Saso') {
+    next();
+  } else {
+    res.redirect('/');
+  }
+}
+
+function jsonResponse(req, res, next) {
+  res.setHeader('Content-Type', 'application/json');
+  next();
+}
+
 /* GET home page */
 router.get('/', function (req, res, next) {
   var loggedIn = (req.session.hasOwnProperty('student') && !!req.session.student);
-  res.render('index', { title: 'Grade Notify', loggedIn: loggedIn, student: req.session.student});
+  var isAdmin = (loggedIn && req.session.student['student_id'] == '76735' && req.session.student['name'] == 'Noah Saso');
+  locals = { title: 'Grade Notify', loggedIn: loggedIn, student: req.session.student, isAdmin: isAdmin };
+  if (isAdmin) {
+    getUserList(function (students) {
+      var localStudents = {
+        disabled: students.disabled.sort(function (a, b) {
+          return a.name > b.name;
+        }),
+        enabled: students.enabled.sort(function (a, b) {
+          return a.name > b.name;
+        })
+      };
+      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled);
+      locals['students'] = localStudents;
+      res.render('index', locals);
+    });
+  } else {
+    res.render('index', locals);
+  }
 });
 
 /* POST login */
-router.post('/login', function (req, res, next) {
+router.post('/login', jsonResponse, function (req, res, next) {
 
   var data = req.body;
   for (var key in data) {
@@ -112,14 +154,12 @@ router.post('/login', function (req, res, next) {
       data[key] = data[key].trim();
     }
   }
-
-  res.setHeader('Content-Type', 'application/json');
   
-  checkAccountExists(data.student_id, function (exists, error) {
+  checkAccountExists(data.studentId, function (exists, error) {
     if (!exists) {
       res.send(JSON.stringify({ status: 'error', message: 'These credentials are invalid.' }));
     } else {
-      validAccountPassword(data.student_id, data.password, function (valid, user) {
+      validAccountPassword(data.studentId, data.password, function (valid, user) {
         if (!valid) {
           res.send(JSON.stringify({ status: 'error', message: 'These credentials are invalid.' }));
         } else {
@@ -132,10 +172,8 @@ router.post('/login', function (req, res, next) {
 
 });
 
-/* GET logout */
-router.post('/logout', authenticate, function (req, res, next) {
-  
-  res.setHeader('Content-Type', 'application/json');
+/* POST logout */
+router.post('/logout', authenticate, jsonResponse, function (req, res, next) {
 
   delete req.session.student;
 
@@ -144,7 +182,7 @@ router.post('/logout', authenticate, function (req, res, next) {
 });
 
 /* POST signup */
-router.post('/signup', function (req, res, next) {
+router.post('/signup', jsonResponse, function (req, res, next) {
   
   var data = req.body;
   for (var key in data) {
@@ -152,8 +190,6 @@ router.post('/signup', function (req, res, next) {
       data[key] = data[key].trim();
     }
   }
-
-  res.setHeader('Content-Type', 'application/json');
 
   if (data.agree != 'on') {
     res.send(JSON.stringify({ status: 'error', message: 'You must agree to the terms to use the service.' }));
@@ -164,18 +200,18 @@ router.post('/signup', function (req, res, next) {
   delete data.first_name;
   delete data.last_name;
 
-  checkAccountExists(data.student_id, function (exists, error) {
+  checkAccountExists(data.studentId, function (exists, error) {
     if (exists) {
       res.send(JSON.stringify({ status: 'error', message: 'An account with that Student ID is already registered. Please use the enable form on the "Edit Account" page if your account is disabled.' }));
     } else {
-      validICAccount(data.username, data.student_id, data.password, function (valid, error) {
+      validICAccount(data.username, data.studentId, data.password, function (valid, error) {
         if (error.length > 0) {
           res.send(JSON.stringify({ status: 'error', message: error }));
         } else {
           if (valid) {
             addAccount(data, function () {
               res.send(JSON.stringify({ status: 'ok', message: 'You have been successfully registered. You will now receive notifications to the email you provided within roughly 30 minutes of a grade change.' }));
-              sendGrades(data.student_id);
+              sendGrades(data.studentId);
             });
           } else {
             res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
@@ -188,7 +224,7 @@ router.post('/signup', function (req, res, next) {
 });
 
 /* POST enable */
-router.post('/enable', authenticate, function (req, res, next) {
+router.post('/enable', authenticate, jsonResponse, function (req, res, next) {
 
   var data = req.body;
   for (var key in data) {
@@ -196,8 +232,6 @@ router.post('/enable', authenticate, function (req, res, next) {
       data[key] = data[key].trim();
     }
   }
-  
-  res.setHeader('Content-Type', 'application/json');
 
   modifyAccount(req.session.student['student_id'], 'enabled', 1, function (error, stdout, stderr) {
     res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
@@ -224,7 +258,7 @@ router.post('/disable', authenticate, function (req, res, next) {
 });
 
 /* POST update */
-router.post('/update', authenticate, function (req, res, next) {
+router.post('/update', authenticate, jsonResponse, function (req, res, next) {
 
   var data = req.body;
   for (var key in data) {
@@ -232,8 +266,6 @@ router.post('/update', authenticate, function (req, res, next) {
       data[key] = data[key].trim();
     }
   }
-
-  res.setHeader('Content-Type', 'application/json');
   
   validICAccount(req.session.student['username'], req.session.student['student_id'], data.new_password, function (valid, error) {
     if (error.length > 0) {
@@ -252,17 +284,25 @@ router.post('/update', authenticate, function (req, res, next) {
 });
 
 /* POST update/phone */
-router.post('/update/phone', authenticatePremium, function (req, res, next) {
+router.post('/update/phone', authenticatePremium, jsonResponse, function (req, res, next) {
 
   var data = req.body;
-
-  res.setHeader('Content-Type', 'application/json');
   
   var phoneEmail = data['phone'] + "@" + data['carrier'];
   modifyAccount(req.session.student['student_id'], 'phone_email', phoneEmail, function (error, stdout, stderr) {
     req.session.student['phone'] = data['phone'];
     req.session.student['carrier'] = data['carrier'];
     res.send(JSON.stringify({ status: 'ok', message: 'Your phone has been updated.' }));
+  });
+
+});
+
+router.post('/admin/update', authenticateAdmin, function (req, res, next) {
+  
+  var data = req.body;
+
+  modifyAccount(data['studentId'], data['key'], data['value'], function (error, stdout, stderr) {
+    res.send(JSON.stringify({ status: 'ok', message: stdout.trim() }));
   });
 
 });

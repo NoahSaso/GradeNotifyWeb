@@ -5,6 +5,65 @@ $("ul.navbar-nav > li > a.nav-link").click(function (e) {
     $('.navbar-collapse').collapse('hide');
 });
 
+// Enable/disable user
+$("button.account-status").click(function (e) {
+    var studentId = $(e.target).data('student-id');
+    var isEnabled = $(e.target).text() == 'Enabled';
+    $.ajax('/admin/update', {
+        type: 'POST',
+        dataType: 'json',
+        data: { studentId: studentId, key: 'enabled', value: (isEnabled ? 0 : 1) },
+        success: function(data, textStatus, jqXHR) {
+            if (data['status'] === 'ok') {
+                toastr['success'](data['message']);
+                $(e.target).text(isEnabled ? 'Disabled' : 'Enabled');
+            } else {
+                toastr['error'](data['message']);
+            }
+        }
+    });
+});
+
+// Set/unset user as premium
+$("button.account-premium").click(function (e) {
+    var studentId = $(e.target).data('student-id');
+    var isPremium = $(e.target).text() == 'Premium';
+    $.ajax('/admin/update', {
+        type: 'POST',
+        dataType: 'json',
+        data: { studentId: studentId, key: 'premium', value: (isPremium ? 0 : 1) },
+        success: function(data, textStatus, jqXHR) {
+            if (data['status'] === 'ok') {
+                toastr['success'](data['message']);
+                $(e.target).text(isPremium ? 'Not Premium' : 'Premium');
+            } else {
+                toastr['error'](data['message']);
+            }
+        }
+    });
+});
+
+// Enable/disable user
+$("input.account-text").keypress(function (e) {
+    if (e.keyCode == 13) { // enter key
+        var studentId = $(e.target).data('student-id');
+        var key = $(e.target).data('key');
+        var value = $(e.target).val();
+        $.ajax('/admin/update', {
+            type: 'POST',
+            dataType: 'json',
+            data: { studentId: studentId, key: key, value: value },
+            success: function (data, textStatus, jqXHR) {
+                if (data['status'] === 'ok') {
+                    toastr['success'](data['message']);
+                } else {
+                    toastr['error'](data['message']);
+                }
+            }
+        });
+    }
+});
+
 $(document).ready(function () {
     // set tab based on hash
     $('ul.navbar-nav a[data-target="' + window.location.hash + '"]').tab('show');
@@ -50,7 +109,7 @@ $("form#status-form").submit(function (e) {
 });
 
 // Prevent enter key for enable/disable form
-$('form#status-form').bind("keypress", function(e) {
+$('form#status-form').keypress(function(e) {
   if (e.keyCode == 13) {               
     e.preventDefault();
     return false;
@@ -66,9 +125,9 @@ $(document.body).on('click', 'form input[type=submit]', function(e) {
 // Intercept all forms and send via ajax
 $("form").submit(function (e) {
     e.preventDefault();
-    formArray = $(e.target).serializeArray();
-    action = $(e.target).attr('action');
-    data = formArray.reduce(function(result, currArray) {
+    var formArray = $(e.target).serializeArray();
+    var action = $(e.target).attr('action');
+    var data = formArray.reduce(function(result, currArray) {
         result[currArray.name] = currArray.value;
         return result;
     }, {});
