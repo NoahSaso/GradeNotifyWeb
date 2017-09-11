@@ -103,6 +103,7 @@ function authenticatePremium(req, res, next) {
   if (req.session.hasOwnProperty('student') && !!req.session.student && req.session.student.hasOwnProperty('premium') && req.session.student.premium) {
     next();
   } else {
+    console.log('Not premium');
     res.redirect('/');
   }
 }
@@ -112,6 +113,7 @@ function authenticateAdmin(req, res, next) {
   if (req.session.hasOwnProperty('student') && !!req.session.student && req.session.student['student_id'] == '76735' && req.session.student['name'] == 'Noah Saso') {
     next();
   } else {
+    console.log('Not admin');
     res.redirect('/');
   }
 }
