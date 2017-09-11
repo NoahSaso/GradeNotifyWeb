@@ -175,7 +175,7 @@ router.post('/login', jsonResponse, function (req, res, next) {
 });
 
 /* POST logout */
-router.post('/logout', authenticate, jsonResponse, function (req, res, next) {
+router.post('/logout', jsonResponse, function (req, res, next) {
 
   delete req.session.student;
 
