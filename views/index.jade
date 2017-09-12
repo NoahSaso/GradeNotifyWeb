@@ -118,8 +118,8 @@ block content
                 div(class='row')
                   div(class='col-12')
                     input(id='submit',type='submit',name='submit',value='Disable',class='form-control btn btn-danger btn-block')
+        br
         if student['premium']
-          br
           div(class='card')
             h5.card-header Update Phone
             div(class='card-block')
@@ -134,18 +134,36 @@ block content
                     div.col-12
                       label(for='carrier') Carrier
                       select(id='carrier',name='carrier',class='form-control')
+                        //- Verizon
                         if student['carrier'] == 'vzwpix.com'
                           option(value='vzwpix.com', selected='selected') Verizon
                         else
                           option(value='vzwpix.com') Verizon
-                        if student['carrier'] == 'txt.att.net'
-                          option(value='txt.att.net', selected='selected') AT&T
+                        //- AT&T
+                        if student['carrier'] == 'mms.att.net'
+                          option(value='mms.att.net', selected='selected') AT&T
                         else
-                          option(value='txt.att.net') AT&T
+                          option(value='mms.att.net') AT&T
+                        //- Sprint
+                        if student['carrier'] == 'messaging.sprintpcs.com'
+                          option(value='messaging.sprintpcs.com', selected='selected') Sprint
+                        else
+                          option(value='messaging.sprintpcs.com') Sprint
+                        //- T-Mobile
+                        if student['carrier'] == 'tmomail.net'
+                          option(value='tmomail.net', selected='selected') T-Mobile
+                        else
+                          option(value='tmomail.net') T-Mobile
                       br
                   div(class='row')
                     div(class='col-12')
                       input(id='submit',type='submit',name='submit',value='Update Phone',class='form-control btn btn-primary btn-block')
+        else
+          div(class='card')
+            h5.card-header Account Upgrade ($1.99)
+            div(class='card-block') 
+              p(class='card-text') Upgrade your account to be sent texts instead of emails and receive assignment scores instead of only cumulative class grades.
+              button.btn.btn-primary#stripe-charge Pay with Card
       if loggedIn
         br
         div(class='card')
@@ -174,4 +192,8 @@ block content
         p This service is in no way affiliated with or endorsed by Infinite Campus, Inc.
         p Copyright © Noah Saso 2017 Grade Notify
 
+  script(src="//checkout.stripe.com/checkout.js")
+  script.
+    var publishableKey = "#{stripe.publishable}";
+    var jEP = #{jEP};
   script(src="/javascripts/index.js")

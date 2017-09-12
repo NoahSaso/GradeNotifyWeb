@@ -86,6 +86,10 @@ $(document).ready(function () {
         showMethod: 'fadeIn',
         hideMethod: 'fadeOut'
     };
+    
+    if (jEP) {
+        toastr['success']('Your account has been upgraded! Please set your phone number below.');
+    }
 
     // loading indicator
     var loading = $('#loading').hide();
@@ -151,4 +155,37 @@ $("form").submit(function (e) {
             }
         }
     });
+});
+
+var handler = StripeCheckout.configure({
+  key: publishableKey,  
+  image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
+  locale: 'auto',
+  zipCode: true,
+  currency: 'USD',
+  token: function(token) {
+    // You can access the token ID with `token.id`.
+    // Get the token ID to your server-side code for use.
+    $.ajax('/charge', {
+        type: 'POST',
+        dataType: 'json',
+        data: { stripeToken: token.id },
+        success: function (data, textStatus, jqXHR) {
+            console.log('complete');
+            if (data['status'] === 'ok') {
+                location.reload();
+            } else {
+                toastr['error'](data['message']);
+            }
+        }
+    });
+  }
+});
+
+$('button#stripe-charge').click(function(e) {
+  handler.open({
+    name: 'Grade Notify',
+    description: 'Premium Upgrade',
+    amount: 199
+  });
 });

@@ -127,7 +127,10 @@ function jsonResponse(req, res, next) {
 router.get('/', function (req, res, next) {
   var loggedIn = (req.session.hasOwnProperty('student') && !!req.session.student);
   var isAdmin = (loggedIn && req.session.student['student_id'] == '76735' && req.session.student['name'] == 'Noah Saso');
-  locals = { title: 'Grade Notify', loggedIn: loggedIn, student: req.session.student, isAdmin: isAdmin };
+  if (!req.session.hasOwnProperty('justEnabledPremium')) {
+    req.session.justEnabledPremium = false;
+  }
+  locals = { title: 'Grade Notify', loggedIn: loggedIn, student: req.session.student, isAdmin: isAdmin, stripe: { publishable: config.stripe.publishable }, jEP: req.session.justEnabledPremium };
   if (isAdmin) {
     getUserList(function (students) {
       var localStudents = {
@@ -145,6 +148,27 @@ router.get('/', function (req, res, next) {
   } else {
     res.render('index', locals);
   }
+});
+
+/* POST charge */
+router.post('/charge', authenticate, jsonResponse, function (req, res, next) {
+  var stripe = require("stripe")(config.stripe.secret);
+  var token = req.body.stripeToken;
+  stripe.charges.create({
+    amount: 199, // $1.99
+    currency: 'usd',
+    description: 'Premium upgrade',
+    source: token
+  }).then(function (charge) {
+    if (charge.paid) {
+      modifyAccount(req.session.student['student_id'], 'premium', 1, function (error, stdout, stderr) {
+        req.session.justEnabledPremium = true;
+        res.send(JSON.stringify({ status: 'ok' }));
+      });
+    } else {
+      res.send(JSON.stringify({ status: 'error', message: 'There was an error completing the transaction. You can try again or give Noah $2 at school.' }));
+    }
+  });
 });
 
 /* POST login */
