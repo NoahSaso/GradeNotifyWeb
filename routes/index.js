@@ -131,6 +131,9 @@ router.get('/', function (req, res, next) {
     req.session.justEnabledPremium = false;
   }
   locals = { title: 'Grade Notify', loggedIn: loggedIn, student: req.session.student, isAdmin: isAdmin, stripe: { publishable: config.stripe.publishable }, jEP: req.session.justEnabledPremium };
+  if (req.session.justEnabledPremium) {
+    req.session.justEnabledPremium = false;
+  }
   if (isAdmin) {
     getUserList(function (students) {
       var localStudents = {
@@ -154,21 +157,31 @@ router.get('/', function (req, res, next) {
 router.post('/charge', authenticate, jsonResponse, function (req, res, next) {
   var stripe = require("stripe")(config.stripe.secret);
   var token = req.body.stripeToken;
-  stripe.charges.create({
-    amount: 199, // $1.99
-    currency: 'usd',
-    description: 'Premium upgrade',
-    source: token
-  }).then(function (charge) {
-    if (charge.paid) {
-      modifyAccount(req.session.student['student_id'], 'premium', 1, function (error, stdout, stderr) {
-        req.session.justEnabledPremium = true;
-        res.send(JSON.stringify({ status: 'ok' }));
-      });
-    } else {
-      res.send(JSON.stringify({ status: 'error', message: 'There was an error completing the transaction. You can try again or give Noah $2 at school.' }));
-    }
-  });
+  var amount = req.body.amount * 100;
+  if (token == 'FREE' || amount == 'FREE') {
+    modifyAccount(req.session.student['student_id'], 'premium', 1, function (error, stdout, stderr) {
+      req.session.justEnabledPremium = true;
+      req.session.student['premium'] = true;
+      res.send(JSON.stringify({ status: 'ok' }));
+    });
+  } else {
+    stripe.charges.create({
+      amount: amount,
+      currency: 'usd',
+      description: 'WG Cares Donation',
+      source: token
+    }).then(function (charge) {
+      if (charge.paid) {
+        modifyAccount(req.session.student['student_id'], 'premium', 1, function (error, stdout, stderr) {
+          req.session.justEnabledPremium = true;
+          req.session.student['premium'] = true;
+          res.send(JSON.stringify({ status: 'ok' }));
+        });
+      } else {
+        res.send(JSON.stringify({ status: 'error', message: 'There was an error completing the transaction. You can try again or give Noah money at school to donate. You may still upgrade your account with the other button.' }));
+      }
+    });
+  }
 });
 
 /* POST login */
@@ -260,6 +273,7 @@ router.post('/enable', authenticate, jsonResponse, function (req, res, next) {
   }
 
   modifyAccount(req.session.student['student_id'], 'enabled', 1, function (error, stdout, stderr) {
+    req.session.student['enabled'] = true;
     res.send(JSON.stringify({ status: 'ok', message: 'Your account has been enabled.' }));
   });
 
@@ -278,6 +292,7 @@ router.post('/disable', authenticate, function (req, res, next) {
   res.setHeader('Content-Type', 'application/json');
 
   modifyAccount(req.session.student['student_id'], 'enabled', 0, function (error, stdout, stderr) {
+    req.session.student['enabled'] = false;
     res.send(JSON.stringify({ status: 'ok', message: 'Your account has been disabled.' }));
   });
 

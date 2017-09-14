@@ -101,28 +101,62 @@ block content
                     td
                       button.btn.btn-secondary.btn-block.account-premium(data-student-id=student.student_id)= (student.premium ? 'Premium' : 'Not Premium')
       else if loggedIn
+        //- not admin -- display enable/disable
         div(class='card')
           h5.card-header Account Status
+          div(class='card-block')
+            div(class='container-fluid')
+              div(class='row')
+                div(class='col-12')
+                  if student['enabled']
+                    p.card-text Your account is <b id='status'>enabled</b>.
+                    button.status-bn.form-control.btn.btn-danger.btn-block#disable Disable
+                  else
+                    p.card-text Your account is <b id='status'>disabled</b>.
+                    button.status-bn.form-control.btn.btn-primary.btn-block#disable Enable
+      if loggedIn
+        //- shown to all logged in
+        br
+        div(class='card')
+          h5.card-header Donation &amp; Account Upgrade
+          div(class='card-block') 
+            p(class='card-text') Over 40% of students at WGHS are living in poverty. It would be awesome if you could donate any money (even $1) to the Willow Glen Cares organization, a program which gives back to the Willow Glen students who can't afford everything they need to succeed.
+            div.container-fluid
+              div.row
+                div.col-4
+                  div.input-group
+                      span.input-group-addon
+                        i.fa.fa-usd
+                      input.form-control#amount(type='number',name='amount',placeholder='1.00',min="0",step="0.01",pattern="^\d+(?:\.\d{1,2})?$")
+                div.col-4
+                  button.btn.btn-primary#stripe-charge Donate to WG Cares
+            hr
+            if student['premium']
+              p.card-text You have already upgraded your account.
+            else
+              p(class='card-text') Upgrade your account (for free!) to be sent texts instead of emails and receive assignment scores instead of only cumulative class grades.
+              button.btn.btn-primary#account-upgrade Upgrade Account (free)
+        br
+        div(class='card')
+          h5.card-header Update Account
           div(class='card-block')
             div.container-fluid
               div.row
                 div.col-12
-                  p(class='card-text') If you have <b>already</b> signed up and want to pause the notifications, you can do so here with the "Disable" button. You may also resume them with the "Enable" button.
+                  p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
             br
-            form(method='post', id='status-form')
+            form(action='/update', method='post', id='update-form')
               div(class='container-fluid')
                 div(class='row')
                   div(class='col-12')
-                    input(id='submit',type='submit',name='submit',value='Enable',class='form-control btn btn-primary btn-block')
-                br
+                    label(for='new-password') New Infinite Campus Password
+                    input(id='new-password',type='password',name='new_password',class='form-control',required=false)
+                    br
                 div(class='row')
                   div(class='col-12')
-                    input(id='submit',type='submit',name='submit',value='Disable',class='form-control btn btn-danger btn-block')
-        br
-        if student['premium']
-          div(class='card')
-            h5.card-header Update Phone
-            div(class='card-block')
+                    input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
+            if student['premium']
+              hr
               form(action='/update/phone', method='post', id='account-form')
                 div(class='container-fluid')
                   div.row
@@ -158,32 +192,6 @@ block content
                   div(class='row')
                     div(class='col-12')
                       input(id='submit',type='submit',name='submit',value='Update Phone',class='form-control btn btn-primary btn-block')
-        else
-          div(class='card')
-            h5.card-header Account Upgrade ($1.99)
-            div(class='card-block') 
-              p(class='card-text') Upgrade your account to be sent texts instead of emails and receive assignment scores instead of only cumulative class grades.
-              button.btn.btn-primary#stripe-charge Pay with Card
-      if loggedIn
-        br
-        div(class='card')
-          h5.card-header Update Password
-          div(class='card-block')
-            div.container-fluid
-              div.row
-                div.col-12
-                  p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
-            br
-            form(action='/update', method='post', id='update-form')
-              div(class='container-fluid')
-                div(class='row')
-                  div(class='col-12')
-                    label(for='new-password') New Infinite Campus Password
-                    input(id='new-password',type='password',name='new_password',class='form-control',required=false)
-                    br
-                div(class='row')
-                  div(class='col-12')
-                    input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
   br
   div(class='card')
     h5.card-header Legal
