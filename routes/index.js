@@ -157,7 +157,7 @@ router.get('/', function (req, res, next) {
 router.post('/charge', authenticate, jsonResponse, function (req, res, next) {
   var stripe = require("stripe")(config.stripe.secret);
   var token = req.body.stripeToken;
-  var amount = req.body.amount
+  var amount = req.body.amount;
   if (token == 'FREE' || amount == 'FREE') {
     modifyAccount(req.session.student['student_id'], 'premium', 1, function (error, stdout, stderr) {
       req.session.justEnabledPremium = true;
