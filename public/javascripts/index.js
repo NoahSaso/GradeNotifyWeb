@@ -208,7 +208,6 @@ $('button#account-upgrade').click(function (e) {
         dataType: 'json',
         data: { stripeToken: 'FREE', amount: 'FREE' },
         success: function (data, textStatus, jqXHR) {
-            console.log('complete');
             if (data['status'] === 'ok') {
                 location.reload();
             } else {
