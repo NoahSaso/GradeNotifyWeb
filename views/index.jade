@@ -9,7 +9,7 @@ block content
           div.container-fluid
             div.row
               div.col-12
-                p(class='card-text') Grade Notify is a service which delivers grade-change alerts to prevent the repetitive checking of grades among us stressed high schoolers. The notification will be sent within 30 minutes of when the grade change is saved by your teacher. Initially, it only sends cumulative grades for each class. However, <b>you may upgrade your account for free</b> once you sign up. Doing so will allow you to receive texts instead of emails as well as specific assignment grades. It is only setup for Willow Glen High School right now.
+                p(class='card-text') Grade Notify is a service which delivers grade-change alerts to prevent the repetitive checking of grades among us stressed high schoolers. The notification will be sent within 30 minutes of when the grade change is saved by your teacher. Initially, it only sends cumulative grades for each class. However, once you sign up, <b>you may upgrade your account for free (donations to WG Cares strongly encouraged)</b>. Doing so will allow you to receive texts instead of emails as well as specific assignment grades. It is only setup for Willow Glen High School right now.
       br
       div(class='card')
         h5.card-header Register
@@ -149,7 +149,7 @@ block content
                 div.row
                   div.col-12
                     label(for='carrier') Carrier
-                    select(id='carrier',name='carrier',class='form-control')
+                    select(id='carrier',class='form-control')
                       //- Verizon
                       if student['carrier'] == 'vzwpix.com'
                         option(value='vzwpix.com', selected='selected') Verizon
@@ -181,6 +181,17 @@ block content
                       else
                         option(value='email.uscc.net') US Cellular
                     br
+                div.row
+                  div.col-12
+                    label(for='phone-enabled') Where would you like to receive notifications?
+                    select#phone-enabled.form-control
+                      if student['phone_enabled']
+                        option(value='1', selected='selected') Text Message
+                        option(value='0') Email
+                      else
+                        option(value='1') Text Message
+                        option(value='0', selected='selected') Email
+                    br
                 div(class='row')
                   div(class='col-12')
                     button.btn.btn-primary.btn-block#update-phone Update Phone
@@ -191,8 +202,9 @@ block content
       div.container-fluid
         div.row
           div.col-12
-            p(class='card-text') This service is not free to host, but any money I would receive from charging for account upgrades would mean so much more to someone else.
-            p(class='card-text') Over 40% of students at WGHS are living in poverty. It would be awesome if you could donate any money (even $1) to the Willow Glen Cares organization, a program which gives back to the Willow Glen students who can't afford everything they need to succeed.
+            p(class='card-text') I'm donating my time and server costs to support this effort. I have personally donated to WG Cares, and any money I would have received from charging for this service would mean so much more to someone else, so I encourage you to donate as well.
+            p(class='card-text') At Willow Glen High School, "40% of our students live in poverty" (<a href="http://willowglenfoundation.org/programs-activities/willow-glen-cares/" target="_blank">WG Cares Site</a>). All donations collected will be sent directly to the WG Cares organization. It would be awesome if you could donate (even $1) to this program which gives back to the Willow Glen students who can't afford everything they need to succeed.
+            p.card-text If you prefer Venmo, you may also send a couple bucks to @NoahSaso with a comment of 'WG Cares'.
         br
         div.row
           div.col-6
@@ -201,7 +213,11 @@ block content
                   i.fa.fa-usd
                 input.form-control#amount(type='number',name='amount',placeholder='1.00',min="0",step="0.01",pattern="^\d+(?:\.\d{1,2})?$")
           div.col-6
-            button.btn.btn-primary.btn-block#stripe-charge Pay w/ Card
+            button.btn.btn-primary.btn-block#stripe-charge Donate
+        br
+        div.row
+          div.col-12
+            p.card-text You may also donate directly at <a href="http://willowglenfoundation.org/programs-activities/willow-glen-cares/" target="_blank">Willow Glen Cares</a>.
         if loggedIn
           hr
           div.row

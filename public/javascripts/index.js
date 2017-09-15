@@ -136,6 +136,7 @@ $("button.status-bn").click(function (e) {
 $("button#update-phone").click(function (e) {
     var phone = $('input#phone').val();
     var carrier = $('select#carrier').val();
+    var enabled = $('')
     var phoneEmail = phone + '@' + carrier;
     $.ajax('/update', {
         type: 'POST',
