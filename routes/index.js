@@ -182,14 +182,8 @@ router.post('/charge', authenticate, jsonResponse, function (req, res, next) {
       description: 'WG Cares Donation',
       source: token
     }).then(function (charge) {
-      if (charge.paid) {
-        modifyAccount(req.session.student['student_id'], 'premium', 1, function (error, stdout, stderr) {
-          req.session.justUpgraded = true;
-          req.session.student['premium'] = true;
-          res.send(JSON.stringify({ status: 'ok' }));
-        });
-      } else {
-        res.send(JSON.stringify({ status: 'error', message: 'There was an error completing the transaction. You can try again or give Noah money at school to donate. You may still upgrade your account with the other button.' }));
+      if (!charge.paid) {
+        res.send(JSON.stringify({ status: 'error', message: 'There was an error completing the transaction. You can try again, give Noah money at school to donate, or send a Venmo to @NoahSaso.' }));
       }
     });
   }
