@@ -24,25 +24,6 @@ $("button.account-status").click(function (e) {
     });
 });
 
-// Upgrade user manually through admin portal
-$("button.account-upgrade").click(function (e) {
-    var studentId = $(e.target).data('student-id');
-    var isUpgraded = $(e.target).text() == 'Upgraded';
-    $.ajax('/admin/update', {
-        type: 'POST',
-        dataType: 'json',
-        data: { studentId: studentId, key: 'premium', value: (isUpgraded ? 0 : 1) },
-        success: function(data, textStatus, jqXHR) {
-            if (data['status'] === 'ok') {
-                toastr['success'](data['message']);
-                $(e.target).text(isUpgraded ? 'Basic' : 'Upgraded');
-            } else {
-                toastr['error'](data['message']);
-            }
-        }
-    });
-});
-
 // Enable/disable user
 $("input.account-text").keypress(function (e) {
     if (e.keyCode == 13) { // enter key
@@ -87,10 +68,8 @@ $(document).ready(function () {
         hideMethod: 'fadeOut'
     };
     
-    if (jU) {
-        toastr['success']('Your account has been upgraded! Please enter your phone number below.');
-    } else if (jR) {
-        toastr['success']('You have been successfully registered. You may upgrade your account for free below.');
+    if (jR) {
+        toastr['success']('You have been successfully registered.');
     }
 
     // loading indicator
@@ -132,16 +111,17 @@ $("button.status-bn").click(function (e) {
     });
 });
 
-// Update phone
-$("button#update-phone").click(function (e) {
-    var phone = $('input#phone').val();
-    var carrier = $('select#carrier').val();
-    var enabled = $('')
+// Update contact
+$("button#update-contact").click(function (e) {
+    var email = $('input#email-a').val();
+    var phone = $('input#phone-a').val();
+    var carrier = $('select#carrier-a').val();
+    var phoneEnabled = $('select#phone-enabled-a').val();
     var phoneEmail = phone + '@' + carrier;
     $.ajax('/update', {
         type: 'POST',
         dataType: 'json',
-        data: { key: 'phoneEmail', value: phoneEmail },
+        data: { data: JSON.stringify({ email: email, phone_email: phoneEmail, phone_enabled: phoneEnabled }) },
         success: function(data, textStatus, jqXHR) {
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
@@ -179,6 +159,14 @@ $("form").submit(function (e) {
         result[currArray.name] = currArray.value;
         return result;
     }, {});
+    if(data.hasOwnProperty("phone") && data.phone.length > 0) {
+        data.phone_email = data.phone + '@' + data.carrier;
+    }
+    if(data.hasOwnProperty("phone") || data.hasOwnProperty("carrier")) {
+        delete data.phone;
+        delete data.carrier;
+    }
+    console.log(data);
     $.ajax(action, {
         type: 'POST',
         dataType: 'json',

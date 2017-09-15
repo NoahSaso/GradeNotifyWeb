@@ -290,28 +290,55 @@ router.post('/update', authenticate, jsonResponse, function (req, res, next) {
       data[key] = data[key].trim();
     }
   }
-  
-  if (data.key == 'password') {
-    validICAccount(req.session.student['username'], req.session.student['student_id'], data.value, function (valid, error) {
-      if (error.length > 0) {
-        res.send(JSON.stringify({ status: 'error', message: error }));
-        return;
-      } else {
-        if (!valid) {
-          res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
+
+  if (Object.keys(data).includes('key') && Object.keys(data).includes('value')) {
+
+    if (data.key == 'password') {
+      validICAccount(req.session.student['username'], req.session.student['student_id'], data.value, function (valid, error) {
+        if (error.length > 0) {
+          res.send(JSON.stringify({ status: 'error', message: error }));
           return;
+        } else {
+          if (!valid) {
+            res.send(JSON.stringify({ status: 'error', message: 'This is not a valid Infinite Campus account.' }));
+            return;
+          }
         }
+      });
+    }
+
+    modifyAccount(req.session.student['student_id'], data.key, data.value, function (error, stdout, stderr) {
+      req.session.student[data.key] = data.value;
+      if (data.key == 'enabled') {
+        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been ' + (data.value == 1 ? 'enabled' : 'disabled') + '.' }));
+      } else {
+        res.send(JSON.stringify({ status: 'ok', message: 'Your account has been updated.' }));
       }
     });
+
   }
 
-  modifyAccount(req.session.student['student_id'], data.key, data.value, function (error, stdout, stderr) {
-    if (data.key == 'enabled') {
-      res.send(JSON.stringify({ status: 'ok', message: 'Your account has been ' + (data.value == 1 ? 'enabled' : 'disabled') + '.' }));
-    } else {
-      res.send(JSON.stringify({ status: 'ok', message: 'Your account has been updated.' }));
-    }
-  });
+  else if (Object.keys(data).includes('data')) {
+
+    data.data = JSON.parse(data.data);
+
+    var keys = Object.keys(data.data);
+    var i = 0;
+    
+    var loopModify = function() {
+      modifyAccount(req.session.student['student_id'], keys[i], data.data[keys[i]], function (error, stdout, stderr) {
+        req.session.student[keys[i]] = data.data[keys[i]];
+        if (i < (keys.length - 1)) {
+          i+=1;
+          loopModify();
+        } else {
+          res.send(JSON.stringify({ status: 'ok', message: 'Your preferences have been saved.' }));
+        }
+      });
+    };
+    loopModify();
+
+  }
 
 });
 
