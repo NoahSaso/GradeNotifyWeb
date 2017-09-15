@@ -2,16 +2,19 @@ extends layout
 
 block content
   div.tab-content
-    div.tab-pane.fade.show.active(id='signup',role='tabpanel')
+    div.tab-pane.fade.show.active(id='register',role='tabpanel')
       div(class='card')
         h5.card-header What is this?
         div(class='card-block')
-          p(class='card-text') Grade Notify is a service which sends grade-change alerts to your email to prevent the repetitive checking of grades. The notification will be sent within 30 minutes of when the grade change is saved by your teacher. At the moment, it only sends you the cumulative grades for each class, no individual assignments (that is coming soon). It is only setup for Willow Glen High School right now.
+          div.container-fluid
+            div.row
+              div.col-12
+                p(class='card-text') Grade Notify is a service which delivers grade-change alerts to prevent the repetitive checking of grades among us stressed high schoolers. The notification will be sent within 30 minutes of when the grade change is saved by your teacher. Initially, it only sends cumulative grades for each class. However, <b>you may upgrade your account for free</b> once you sign up. Doing so will allow you to receive texts instead of emails as well as specific assignment grades. It is only setup for Willow Glen High School right now.
       br
       div(class='card')
-        h5.card-header Sign Up
+        h5.card-header Register
         div(class='card-block')
-          form(action='/signup', method='post',id='signup-form')
+          form(action='/register', method='post')
             div(class='container-fluid')
               div(class='row')
                 div(class='col-6')
@@ -51,12 +54,13 @@ block content
               div(class='row')
                 div(class='col-12')
                   input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
-    div.tab-pane.fade(id='edit',role='tabpanel')
+      br
+    div.tab-pane.fade(id='account',role='tabpanel')
       div(class='card')
         if !loggedIn
           h5.card-header Log In
         div(class='card-block')
-          form(action=(loggedIn ? '/logout' : '/login'), method='post', id='login-form')
+          form(action=(loggedIn ? '/logout' : '/login'), method='post', id='loginout-form')
             div(class='container-fluid')
               if !loggedIn
                 div(class='row')
@@ -85,7 +89,7 @@ block content
                   th Student ID
                   th Email
                   th Phone
-                  th Premium
+                  th Type
               tbody
                 - each student in students.all
                   tr
@@ -99,7 +103,7 @@ block content
                     td
                       input.account-text.form-control(type='text', data-key='phone_email', data-student-id=student.student_id, value=student.phone_email)
                     td
-                      button.btn.btn-secondary.btn-block.account-premium(data-student-id=student.student_id)= (student.premium ? 'Premium' : 'Not Premium')
+                      button.btn.btn-secondary.btn-block.account-upgrade(data-student-id=student.student_id)= (student.premium ? 'Upgraded' : 'Basic')
       else if loggedIn
         //- not admin -- display enable/disable
         div(class='card')
@@ -110,32 +114,12 @@ block content
                 div(class='col-12')
                   if student['enabled']
                     p.card-text Your account is <b id='status'>enabled</b>.
-                    button.status-bn.form-control.btn.btn-danger.btn-block#disable Disable
+                    button.status-bn.btn.btn-danger.btn-block#disable Disable
                   else
                     p.card-text Your account is <b id='status'>disabled</b>.
-                    button.status-bn.form-control.btn.btn-primary.btn-block#disable Enable
+                    button.status-bn.btn.btn-primary.btn-block#disable Enable
       if loggedIn
         //- shown to all logged in
-        br
-        div(class='card')
-          h5.card-header Donation &amp; Account Upgrade
-          div(class='card-block') 
-            p(class='card-text') Over 40% of students at WGHS are living in poverty. It would be awesome if you could donate any money (even $1) to the Willow Glen Cares organization, a program which gives back to the Willow Glen students who can't afford everything they need to succeed.
-            div.container-fluid
-              div.row
-                div.col-4
-                  div.input-group
-                      span.input-group-addon
-                        i.fa.fa-usd
-                      input.form-control#amount(type='number',name='amount',placeholder='1.00',min="0",step="0.01",pattern="^\d+(?:\.\d{1,2})?$")
-                div.col-4
-                  button.btn.btn-primary#stripe-charge Donate to WG Cares
-            hr
-            if student['premium']
-              p.card-text You have already upgraded your account.
-            else
-              p(class='card-text') Upgrade your account (for free!) to be sent texts instead of emails and receive assignment scores instead of only cumulative class grades.
-              button.btn.btn-primary#account-upgrade Upgrade Account (free)
         br
         div(class='card')
           h5.card-header Update Account
@@ -145,73 +129,102 @@ block content
                 div.col-12
                   p(class='card-text') This does <b>not</b> update your Infinite Campus password. It should only be used if your current IC password is different from what you entered on the "Sign Up" page on this site. If you changed your password on Infinite Campus, you must fill this out to resume receiving notifications.
             br
-            form(action='/update', method='post', id='update-form')
+            div(class='container-fluid')
+              div(class='row')
+                div(class='col-12')
+                  label(for='new-password') New Infinite Campus Password
+                  input.form-control#new-password(type='password')
+                  br
+              div(class='row')
+                div(class='col-12')
+                  button.btn.btn-primary.btn-block#update-password Update Password
+            if student['premium']
+              hr
               div(class='container-fluid')
-                div(class='row')
-                  div(class='col-12')
-                    label(for='new-password') New Infinite Campus Password
-                    input(id='new-password',type='password',name='new_password',class='form-control',required=false)
+                div.row
+                  div.col-12
+                    label(for='phone') Phone (Area Code + 7 Digits)
+                    input(id='phone',type='text',max='10',name='phone',placeholder='XXXXXXXXXX',class='form-control',value=student['phone'])
+                    br
+                div.row
+                  div.col-12
+                    label(for='carrier') Carrier
+                    select(id='carrier',name='carrier',class='form-control')
+                      //- Verizon
+                      if student['carrier'] == 'vzwpix.com'
+                        option(value='vzwpix.com', selected='selected') Verizon
+                      else
+                        option(value='vzwpix.com') Verizon
+                      //- AT&T
+                      if student['carrier'] == 'mms.att.net'
+                        option(value='mms.att.net', selected='selected') AT&T
+                      else
+                        option(value='mms.att.net') AT&T
+                      //- Sprint
+                      if student['carrier'] == 'messaging.sprintpcs.com'
+                        option(value='messaging.sprintpcs.com', selected='selected') Sprint
+                      else
+                        option(value='messaging.sprintpcs.com') Sprint
+                      //- T-Mobile
+                      if student['carrier'] == 'tmomail.net'
+                        option(value='tmomail.net', selected='selected') T-Mobile
+                      else
+                        option(value='tmomail.net') T-Mobile
+                      //- MetroPCS
+                      if student['carrier'] == 'mymetropcs.com'
+                        option(value='mymetropcs.com', selected='selected') MetroPCS
+                      else
+                        option(value='mymetropcs.com') MetroPCS
+                      //- US Cellular
+                      if student['carrier'] == 'email.uscc.net'
+                        option(value='email.uscc.net', selected='selected') US Cellular
+                      else
+                        option(value='email.uscc.net') US Cellular
                     br
                 div(class='row')
                   div(class='col-12')
-                    input(id='submit',type='submit',name='submit',value='Update Password',class='form-control btn btn-primary btn-block')
-            if student['premium']
-              hr
-              form(action='/update/phone', method='post', id='account-form')
-                div(class='container-fluid')
-                  div.row
-                    div.col-12
-                      label(for='phone') Phone
-                      input(id='phone',type='text',name='phone',class='form-control',value=student['phone'])
-                      br
-                  div.row
-                    div.col-12
-                      label(for='carrier') Carrier
-                      select(id='carrier',name='carrier',class='form-control')
-                        //- Verizon
-                        if student['carrier'] == 'vzwpix.com'
-                          option(value='vzwpix.com', selected='selected') Verizon
-                        else
-                          option(value='vzwpix.com') Verizon
-                        //- AT&T
-                        if student['carrier'] == 'mms.att.net'
-                          option(value='mms.att.net', selected='selected') AT&T
-                        else
-                          option(value='mms.att.net') AT&T
-                        //- Sprint
-                        if student['carrier'] == 'messaging.sprintpcs.com'
-                          option(value='messaging.sprintpcs.com', selected='selected') Sprint
-                        else
-                          option(value='messaging.sprintpcs.com') Sprint
-                        //- T-Mobile
-                        if student['carrier'] == 'tmomail.net'
-                          option(value='tmomail.net', selected='selected') T-Mobile
-                        else
-                          option(value='tmomail.net') T-Mobile
-                        //- MetroPCS
-                        if student['carrier'] == 'mymetropcs.com'
-                          option(value='mymetropcs.com', selected='selected') MetroPCS
-                        else
-                          option(value='mymetropcs.com') MetroPCS
-                        //- US Cellular
-                        if student['carrier'] == 'email.uscc.net'
-                          option(value='email.uscc.net', selected='selected') US Cellular
-                        else
-                          option(value='email.uscc.net') US Cellular
-                      br
-                  div(class='row')
-                    div(class='col-12')
-                      input(id='submit',type='submit',name='submit',value='Update Phone',class='form-control btn btn-primary btn-block')
+                    button.btn.btn-primary.btn-block#update-phone Update Phone
         br
+  div(class='card')
+    h5.card-header= (loggedIn ? 'Donation & Account Upgrade' : 'Donate to WG Cares')
+    div(class='card-block')
+      div.container-fluid
+        div.row
+          div.col-12
+            p(class='card-text') This service is not free to host, but any money I would receive from charging for account upgrades would mean so much more to someone else.
+            p(class='card-text') Over 40% of students at WGHS are living in poverty. It would be awesome if you could donate any money (even $1) to the Willow Glen Cares organization, a program which gives back to the Willow Glen students who can't afford everything they need to succeed.
+        br
+        div.row
+          div.col-6
+            div.input-group
+                span.input-group-addon
+                  i.fa.fa-usd
+                input.form-control#amount(type='number',name='amount',placeholder='1.00',min="0",step="0.01",pattern="^\d+(?:\.\d{1,2})?$")
+          div.col-6
+            button.btn.btn-primary.btn-block#stripe-charge Pay w/ Card
+        if loggedIn
+          hr
+          div.row
+            div.col-12
+              if student['premium']
+                p.card-text You have already upgraded your account.
+              else
+                p(class='card-text') Upgrade your account (for free!) to be sent texts instead of emails and receive assignment scores instead of only cumulative class grades.
+                button.btn.btn-primary.btn-block#account-upgrade Upgrade Account (free)
+  br
   div(class='card')
     h5.card-header Legal
     div(class='card-block')
-      p(class='card-text')
-        p This service is in no way affiliated with or endorsed by Infinite Campus, Inc.
-        p Copyright © Noah Saso 2017 Grade Notify
+      div.container-fluid
+        div.row
+          div.col-12
+            p(class='card-text')
+              p This service is in no way affiliated with or endorsed by Infinite Campus, Inc.
+              p Copyright © Noah Saso 2017 Grade Notify
 
   script(src="//checkout.stripe.com/checkout.js")
   script.
     var publishableKey = "#{stripe.publishable}";
-    var jEP = #{jEP};
+    var jU = #{jU};
+    var jR = #{jR};
   script(src="/javascripts/index.js")

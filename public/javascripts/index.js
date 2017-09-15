@@ -24,18 +24,18 @@ $("button.account-status").click(function (e) {
     });
 });
 
-// Set/unset user as premium
-$("button.account-premium").click(function (e) {
+// Upgrade user manually through admin portal
+$("button.account-upgrade").click(function (e) {
     var studentId = $(e.target).data('student-id');
-    var isPremium = $(e.target).text() == 'Premium';
+    var isUpgraded = $(e.target).text() == 'Upgraded';
     $.ajax('/admin/update', {
         type: 'POST',
         dataType: 'json',
-        data: { studentId: studentId, key: 'premium', value: (isPremium ? 0 : 1) },
+        data: { studentId: studentId, key: 'premium', value: (isUpgraded ? 0 : 1) },
         success: function(data, textStatus, jqXHR) {
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
-                $(e.target).text(isPremium ? 'Not Premium' : 'Premium');
+                $(e.target).text(isUpgraded ? 'Basic' : 'Upgraded');
             } else {
                 toastr['error'](data['message']);
             }
@@ -87,8 +87,10 @@ $(document).ready(function () {
         hideMethod: 'fadeOut'
     };
     
-    if (jEP) {
+    if (jU) {
         toastr['success']('Your account has been upgraded! Please enter your phone number below.');
+    } else if (jR) {
+        toastr['success']('You have been successfully registered. You may upgrade your account for free below.');
     }
 
     // loading indicator
@@ -102,13 +104,13 @@ $(document).ready(function () {
         });
 });
 
-// Form set action based on button click
+// Enable or disable account
 $("button.status-bn").click(function (e) {
     var isEnabling = $(e.target).text() == 'Enable';
-    var action = '/' + $(e.target).attr('id');
-    $.ajax(action, {
+    $.ajax('/update', {
         type: 'POST',
         dataType: 'json',
+        data: { key: 'enabled', value: (isEnabling ? 1 : 0) },
         success: function(data, textStatus, jqXHR) {
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
@@ -130,7 +132,44 @@ $("button.status-bn").click(function (e) {
     });
 });
 
-// Intercept all forms and send via ajax
+// Update phone
+$("button#update-phone").click(function (e) {
+    var phone = $('input#phone').val();
+    var carrier = $('select#carrier').val();
+    var phoneEmail = phone + '@' + carrier;
+    $.ajax('/update', {
+        type: 'POST',
+        dataType: 'json',
+        data: { key: 'phoneEmail', value: phoneEmail },
+        success: function(data, textStatus, jqXHR) {
+            if (data['status'] === 'ok') {
+                toastr['success'](data['message']);
+            } else {
+                toastr['error'](data['message']);
+            }
+        }
+    });
+});
+
+// Update password
+$("button#update-password").click(function (e) {
+    var password = $('input#new-password').val();
+    $.ajax('/update', {
+        type: 'POST',
+        dataType: 'json',
+        data: { key: 'password', value: password },
+        success: function(data, textStatus, jqXHR) {
+            if (data['status'] === 'ok') {
+                toastr['success'](data['message']);
+            } else {
+                toastr['error'](data['message']);
+            }
+        }
+    });
+});
+
+
+// Intercept login/logout form and signup form and send as ajax
 $("form").submit(function (e) {
     e.preventDefault();
     var formArray = $(e.target).serializeArray();
@@ -147,12 +186,8 @@ $("form").submit(function (e) {
             if (data['status'] === 'ok') {
                 if (action == '/login' || action == '/logout') {
                     location.reload();
-                } else {
-                    toastr['success'](data['message']);
-                    if (action.indexOf('/update/') != 0) {
-                        $(e.target).find("input[type=text], input[type=password]").val("");
-                        $(e.target).find("input[type=checkbox]").attr('checked', false);
-                    }
+                } else if (action == '/register') {
+                    location.href = '/#account';
                 }
             } else {
                 toastr['error'](data['message']);
