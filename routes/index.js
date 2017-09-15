@@ -10,8 +10,8 @@ function puts(error, stdout, stderr) { console.log(stdout, stderr); }
 
 function dev_log(string) { if (process.env.USER == 'noah') { console.log(string); } }
 
-function checkAccountExists(studentId, callback) {
-  var query = "./grades.py -x \"" + studentId + "\"";
+function checkAccountExists(student_id, callback) {
+  var query = "./grades.py -x \"" + student_id + "\"";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var response = stdout.trim();
@@ -24,8 +24,8 @@ function checkAccountExists(studentId, callback) {
   });
 }
 
-function validAccountPassword(studentId, password, callback) {
-  var query = "./grades.py -z \"" + config.salt + "\" -v '" + JSON.stringify({ student_id: studentId, password: password }) + "'";
+function validAccountPassword(student_id, password, callback) {
+  var query = "./grades.py -z \"" + config.salt + "\" -v '" + JSON.stringify({ student_id: student_id, password: password }) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var valid = stdout.trim() != '0';
@@ -50,16 +50,16 @@ function addAccount(user_data, callback) {
   });
 }
 
-function modifyAccount(studentId, key, value, callback) {
-  var query = "./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({ student_id: studentId, key: key, value: value }) + "'";
+function modifyAccount(student_id, key, value, callback) {
+  var query = "./grades.py -z \"" + config.salt + "\" -m '" + JSON.stringify({ student_id: student_id, key: key, value: value }) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     callback(error, stdout, stderr);
   });
 }
 
-function validICAccount(username, studentId, password, callback) {
-  var query = "./grades.py -i '" + JSON.stringify({ username: username, student_id: studentId, password: password }) + "'";
+function validICAccount(username, student_id, password, callback) {
+  var query = "./grades.py -i '" + JSON.stringify({ username: username, student_id: student_id, password: password }) + "'";
   dev_log("Running: " + query);
   exec(query, function (error, stdout, stderr) {
     var response = stdout.trim();
@@ -73,8 +73,8 @@ function validICAccount(username, studentId, password, callback) {
   });
 }
 
-function sendGrades(studentId) {
-  var query = "./grades.py -z \"" + config.salt + "\" -g \"" + studentId + "\"";
+function sendGrades(student_id) {
+  var query = "./grades.py -z \"" + config.salt + "\" -g \"" + student_id + "\"";
   dev_log("Running: " + query);
   exec(query, puts);
 }
@@ -190,11 +190,11 @@ router.post('/login', jsonResponse, function (req, res, next) {
     }
   }
   
-  checkAccountExists(data.studentId, function (exists, error) {
+  checkAccountExists(data.student_id, function (exists, error) {
     if (!exists) {
       res.send(JSON.stringify({ status: 'error', message: 'These credentials are invalid.' }));
     } else {
-      validAccountPassword(data.studentId, data.password, function (valid, user) {
+      validAccountPassword(data.student_id, data.password, function (valid, user) {
         if (!valid) {
           res.send(JSON.stringify({ status: 'error', message: 'These credentials are invalid.' }));
         } else {
@@ -235,18 +235,18 @@ router.post('/register', jsonResponse, function (req, res, next) {
   delete data.first_name;
   delete data.last_name;
 
-  checkAccountExists(data.studentId, function (exists, error) {
+  checkAccountExists(data.student_id, function (exists, error) {
     if (exists) {
-      res.send(JSON.stringify({ status: 'error', message: 'This Student ID is already registered to an account.' }));
+      res.send(JSON.stringify({ status: 'error', message: 'This student ID is already registered to an account.' }));
     } else {
-      validICAccount(data.username, data.studentId, data.password, function (valid, error) {
+      validICAccount(data.username, data.student_id, data.password, function (valid, error) {
         if (error.length > 0) {
           res.send(JSON.stringify({ status: 'error', message: error }));
         } else {
           if (valid) {
             addAccount(data, function () {
-              sendGrades(data.studentId);
-              validAccountPassword(data.studentId, data.password, function (valid, user) {
+              sendGrades(data.student_id);
+              validAccountPassword(data.student_id, data.password, function (valid, user) {
                 if (!valid) {
                   res.send(JSON.stringify({ status: 'error', message: 'Something went wrong. Please try again later' }));
                 } else {
@@ -331,10 +331,10 @@ router.post('/admin/update', authenticateAdmin, function (req, res, next) {
   
   var data = req.body;
 
-  modifyAccount(data['studentId'], data['key'], data['value'], function (error, stdout, stderr) {
+  modifyAccount(data['student_id'], data['key'], data['value'], function (error, stdout, stderr) {
     res.send(JSON.stringify({ status: 'ok', message: stdout.trim() }));
     if (data['key'] == 'phone_email') {
-      sendGrades(data['studentId']);
+      sendGrades(data['student_id']);
     }
   });
 

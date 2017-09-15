@@ -7,12 +7,12 @@ $("ul.navbar-nav > li > a.nav-link").click(function (e) {
 
 // Enable/disable user
 $("button.account-status").click(function (e) {
-    var studentId = $(e.target).data('student-id');
+    var student_id = $(e.target).data('student-id');
     var isEnabled = $(e.target).text() == 'Enabled';
     $.ajax('/admin/update', {
         type: 'POST',
         dataType: 'json',
-        data: { studentId: studentId, key: 'enabled', value: (isEnabled ? 0 : 1) },
+        data: { student_id: student_id, key: 'enabled', value: (isEnabled ? 0 : 1) },
         success: function(data, textStatus, jqXHR) {
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
@@ -27,13 +27,13 @@ $("button.account-status").click(function (e) {
 // Enable/disable user
 $("input.account-text").keypress(function (e) {
     if (e.keyCode == 13) { // enter key
-        var studentId = $(e.target).data('student-id');
+        var student_id = $(e.target).data('student-id');
         var key = $(e.target).data('key');
         var value = $(e.target).val();
         $.ajax('/admin/update', {
             type: 'POST',
             dataType: 'json',
-            data: { studentId: studentId, key: key, value: value },
+            data: { student_id: student_id, key: key, value: value },
             success: function (data, textStatus, jqXHR) {
                 if (data['status'] === 'ok') {
                     toastr['success'](data['message']);
@@ -166,7 +166,6 @@ $("form").submit(function (e) {
         delete data.phone;
         delete data.carrier;
     }
-    console.log(data);
     $.ajax(action, {
         type: 'POST',
         dataType: 'json',
@@ -205,7 +204,6 @@ var handler = StripeCheckout.configure({
             dataType: 'json',
             data: { stripeToken: token.id, amount: amount },
             success: function (data, textStatus, jqXHR) {
-                console.log('complete');
                 if (data['status'] === 'ok') {
                     location.reload();
                 } else {
