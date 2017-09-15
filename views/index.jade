@@ -188,6 +188,16 @@ block content
                           option(value='tmomail.net', selected='selected') T-Mobile
                         else
                           option(value='tmomail.net') T-Mobile
+                        //- MetroPCS
+                        if student['carrier'] == 'mymetropcs.com'
+                          option(value='mymetropcs.com', selected='selected') MetroPCS
+                        else
+                          option(value='mymetropcs.com') MetroPCS
+                        //- US Cellular
+                        if student['carrier'] == 'email.uscc.net'
+                          option(value='email.uscc.net', selected='selected') US Cellular
+                        else
+                          option(value='email.uscc.net') US Cellular
                       br
                   div(class='row')
                     div(class='col-12')
