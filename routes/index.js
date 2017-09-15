@@ -167,26 +167,17 @@ router.get('/', function (req, res, next) {
 router.post('/charge', authenticate, jsonResponse, function (req, res, next) {
   var stripe = require("stripe")(config.stripe.secret);
   var token = req.body.stripeToken;
-  var amount = req.body.amount;
-  if (token == 'FREE' || amount == 'FREE') {
-    modifyAccount(req.session.student['student_id'], 'premium', 1, function (error, stdout, stderr) {
-      req.session.justUpgraded = true;
-      req.session.student['premium'] = true;
-      res.send(JSON.stringify({ status: 'ok' }));
-    });
-  } else {
-    amount = amount * 100;
-    stripe.charges.create({
-      amount: amount,
-      currency: 'usd',
-      description: 'WG Cares Donation',
-      source: token
-    }).then(function (charge) {
-      if (!charge.paid) {
-        res.send(JSON.stringify({ status: 'error', message: 'There was an error completing the transaction. You can try again, give Noah money at school to donate, or send a Venmo to @NoahSaso.' }));
-      }
-    });
-  }
+  var amount = req.body.amount * 100; // cents
+  stripe.charges.create({
+    amount: amount,
+    currency: 'usd',
+    description: 'WG Cares Donation',
+    source: token
+  }).then(function (charge) {
+    if (!charge.paid) {
+      res.send(JSON.stringify({ status: 'error', message: 'There was an error completing the transaction. You can try again, give Noah money at school to donate, or send a Venmo to @NoahSaso.' }));
+    }
+  });
 });
 
 /* POST login */
