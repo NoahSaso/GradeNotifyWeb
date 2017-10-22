@@ -148,15 +148,13 @@ router.get('/', function (req, res, next) {
     getUserList(function (students) {
       var localStudents = {
         disabled: students.disabled.sort(function (a, b) {
-          return a.name > b.name;
+          return (a.name.split(' ')[0] == b.name.split(' ')[0] ? a.name.split(' ')[1] > b.name.split(' ')[1] : a.name.split(' ')[0] > b.name.split(' ')[0]);
         }),
         enabled: students.enabled.sort(function (a, b) {
-          return a.name > b.name;
+          return (a.name.split(' ')[0] == b.name.split(' ')[0] ? a.name.split(' ')[1] > b.name.split(' ')[1] : a.name.split(' ')[0] > b.name.split(' ')[0]);
         })
       };
-      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled).sort(function (a, b) {
-        return a.name > b.name;
-      });
+      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled);
       locals['students'] = localStudents;
       res.render('index', locals);
     });
