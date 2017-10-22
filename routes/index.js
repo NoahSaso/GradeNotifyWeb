@@ -154,7 +154,9 @@ router.get('/', function (req, res, next) {
           return a.name > b.name;
         })
       };
-      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled);
+      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled).sort(function (a, b) {
+        return a.name > b.name;
+      });
       locals['students'] = localStudents;
       res.render('index', locals);
     });
