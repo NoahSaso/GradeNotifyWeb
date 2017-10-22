@@ -123,6 +123,12 @@ function jsonResponse(req, res, next) {
   next();
 }
 
+function alphabeticalSort(a, b) {
+  var nameA = a.name.toLowerCase();
+  var nameB = b.name.toLowerCase();
+  return (nameA < nameB) ? -1 : ((nameA > nameB) ? 1 : 0);
+}
+
 /* GET home page */
 router.get('/', function (req, res, next) {
   var loggedIn = (req.session.hasOwnProperty('student') && !!req.session.student);
@@ -147,17 +153,10 @@ router.get('/', function (req, res, next) {
   if (isAdmin) {
     getUserList(function (students) {
       var localStudents = {
-        disabled: students.disabled.sort(function (a, b) {
-          return (a.name.split(' ')[0] == b.name.split(' ')[0] ? a.name.split(' ')[1] > b.name.split(' ')[1] : a.name.split(' ')[0] > b.name.split(' ')[0]);
-        }),
-        enabled: students.enabled.sort(function (a, b) {
-          return (a.name.split(' ')[0] == b.name.split(' ')[0] ? a.name.split(' ')[1] > b.name.split(' ')[1] : a.name.split(' ')[0] > b.name.split(' ')[0]);
-        })
+        disabled: students.disabled.sort(alphabeticalSort),
+        enabled: students.enabled.sort(alphabeticalSort)
       };
-      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled).sort(function (a, b) {
-        return a.name.split(' ')[0] > b.name.split(' ')[0];
-      });
-      console.log(localStudents['all']);
+      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled);
       locals['students'] = localStudents;
       res.render('index', locals);
     });
