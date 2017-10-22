@@ -154,7 +154,9 @@ router.get('/', function (req, res, next) {
           return (a.name.split(' ')[0] == b.name.split(' ')[0] ? a.name.split(' ')[1] > b.name.split(' ')[1] : a.name.split(' ')[0] > b.name.split(' ')[0]);
         })
       };
-      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled);
+      localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled).sort(function (a, b) {
+        return (a.name.split(' ')[0] == b.name.split(' ')[0] ? a.name.split(' ')[1] > b.name.split(' ')[1] : a.name.split(' ')[0] > b.name.split(' ')[0]);
+      });
       locals['students'] = localStudents;
       res.render('index', locals);
     });
