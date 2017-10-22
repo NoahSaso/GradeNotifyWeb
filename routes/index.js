@@ -155,9 +155,9 @@ router.get('/', function (req, res, next) {
         })
       };
       localStudents['all'] = [].concat(localStudents.disabled).concat(localStudents.enabled).sort(function (a, b) {
-        return (a.name.split(' ')[0] == b.name.split(' ')[0] ? a.name.split(' ')[1] > b.name.split(' ')[1] : a.name.split(' ')[0] > b.name.split(' ')[0]);
+        return a.name.split(' ')[0] > b.name.split(' ')[0];
       });
-      console.log(localStudents);
+      console.log(localStudents['all']);
       locals['students'] = localStudents;
       res.render('index', locals);
     });
