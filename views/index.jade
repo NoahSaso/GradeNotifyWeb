@@ -158,63 +158,93 @@ block content
                   button.btn.btn-primary.btn-block#update-password Update Password
             hr
             div.container-fluid
-              div.row
-                div.col-12
-                  label(for='email') Email
-                  input(id='email-a',type='text',placeholder='email@example.com',class='form-control',value=student['email'])
-              br
-              div.row
-                div.col-6
-                  label(for='phone') Phone (Area Code + 7 Digits)
-                  input(id='phone-a',type='text',max='10',placeholder='XXXXXXXXXX',class='form-control',value=student['phone'])
-                div.col-6
-                  label(for='carrier') Carrier
-                  select(id='carrier',class='form-control')
-                    //- Verizon
-                    if student['carrier'] == 'vzwpix.com'
-                      option(value='vzwpix.com', selected='selected') Verizon
-                    else
-                      option(value='vzwpix.com') Verizon
-                    //- AT&T
-                    if student['carrier'] == 'mms.att.net'
-                      option(value='mms.att.net', selected='selected') AT&T
-                    else
-                      option(value='mms.att.net') AT&T
-                    //- Sprint
-                    if student['carrier'] == 'messaging.sprintpcs.com'
-                      option(value='messaging.sprintpcs.com', selected='selected') Sprint
-                    else
-                      option(value='messaging.sprintpcs.com') Sprint
-                    //- T-Mobile
-                    if student['carrier'] == 'tmomail.net'
-                      option(value='tmomail.net', selected='selected') T-Mobile
-                    else
-                      option(value='tmomail.net') T-Mobile
-                    //- MetroPCS
-                    if student['carrier'] == 'mymetropcs.com'
-                      option(value='mymetropcs.com', selected='selected') MetroPCS
-                    else
-                      option(value='mymetropcs.com') MetroPCS
-                    //- US Cellular
-                    if student['carrier'] == 'email.uscc.net'
-                      option(value='email.uscc.net', selected='selected') US Cellular
-                    else
-                      option(value='email.uscc.net') US Cellular
-                  br
-              div.row
-                div.col-12
-                  label(for='phone-enabled') Where would you like to receive notifications?
-                  select#phone-enabled-a.form-control
-                    if student['phone_enabled'] == 1
-                      option(value='1', selected='selected') Text Message
-                      option(value='0') Email
-                    else
-                      option(value='1') Text Message
-                      option(value='0', selected='selected') Email
-                  br
               div(class='row')
                 div(class='col-12')
-                  button.btn.btn-primary.btn-block#update-contact Update Contact
+                  table.table
+                    thead
+                      tr
+                        th Address
+                        th Carrier
+                        th Status
+                        th
+                    tbody
+                      - each recipient in student['recipients']
+                        tr#recipient
+                          td
+                            input(type='text',value=(recipient['type'] == 'phone' ? recipient['address'].split('@')[0] : recipient['address']),id='address',class='form-control')
+                          td
+                            select(id='carrier',class='form-control')
+                              if recipient['type'] == 'phone'
+                                option(value='EMAIL') Email
+                              else
+                                option(value='EMAIL', selected='selected') Email
+                              //- Verizon
+                              if recipient['address'].split('@')[1] == 'vzwpix.com'
+                                option(value='vzwpix.com', selected='selected') Verizon
+                              else
+                                option(value='vzwpix.com') Verizon
+                              //- AT&T
+                              if recipient['address'].split('@')[1] == 'mms.att.net'
+                                option(value='mms.att.net', selected='selected') AT&T
+                              else
+                                option(value='mms.att.net') AT&T
+                              //- Sprint
+                              if recipient['address'].split('@')[1] == 'messaging.sprintpcs.com'
+                                option(value='messaging.sprintpcs.com', selected='selected') Sprint
+                              else
+                                option(value='messaging.sprintpcs.com') Sprint
+                              //- T-Mobile
+                              if recipient['address'].split('@')[1] == 'tmomail.net'
+                                option(value='tmomail.net', selected='selected') T-Mobile
+                              else
+                                option(value='tmomail.net') T-Mobile
+                              //- MetroPCS
+                              if recipient['address'].split('@')[1] == 'mymetropcs.com'
+                                option(value='mymetropcs.com', selected='selected') MetroPCS
+                              else
+                                option(value='mymetropcs.com') MetroPCS
+                              //- US Cellular
+                              if recipient['address'].split('@')[1] == 'email.uscc.net'
+                                option(value='email.uscc.net', selected='selected') US Cellular
+                              else
+                                option(value='email.uscc.net') US Cellular
+                          td
+                            select(id='enabled',class='form-control')
+                                if recipient['enabled'] == 1
+                                  option(value=1, selected='selected') Enabled
+                                  option(value=0) Disabled
+                                else
+                                  option(value=1) Enabled
+                                  option(value=0, selected='selected') Disabled
+                          td
+                            button(class='btn btn-danger btn-block',type='button',id='delete-recipient') Delete
+                      tr#new-recipient
+                        td
+                          input(type='text',placeholder='408XXXXXXX or example@gmail.com',id='address',class='form-control')
+                        td
+                          select(id='carrier',class='form-control')
+                            option(value='EMAIL') Email
+                            //- Verizon
+                            option(value='vzwpix.com') Verizon
+                            //- AT&T
+                            option(value='mms.att.net') AT&T
+                            //- Sprint
+                            option(value='messaging.sprintpcs.com') Sprint
+                            //- T-Mobile
+                            option(value='tmomail.net') T-Mobile
+                            //- MetroPCS
+                            option(value='mymetropcs.com') MetroPCS
+                            //- US Cellular
+                            option(value='email.uscc.net') US Cellular
+                        td
+                          select(id='enabled',class='form-control')
+                            option(value=1, selected='selected') Enabled
+                            option(value=0) Disabled
+                        td
+                          button(class='btn btn-success btn-block',type='button',id='add-recipient') Add
+              div(class='row')
+                div(class='col-12')
+                  button(class='btn btn-primary btn-block',type='button',id='save-recipients') Save Changes
         br
   div(class='card')
     h5.card-header Donate to WG Cares

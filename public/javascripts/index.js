@@ -111,17 +111,29 @@ $("button.status-bn").click(function (e) {
     });
 });
 
-// Update contact
-$("button#update-contact").click(function (e) {
-    var email = $('input#email-a').val();
-    var phone = $('input#phone-a').val();
-    var carrier = $('select#carrier-a').val();
-    var phoneEnabled = $('select#phone-enabled-a').val();
-    var phoneEmail = phone + '@' + carrier;
+function updateRecipients() {
+    var recipients = [];
+    $('tr#recipient').each(function (idx, element) {
+        var elem = $(element);
+        var address = elem.find('input#address').val();
+        var carrier = elem.find('select#carrier').val();
+        if (carrier == 'EMAIL') {
+            var type = 'email';
+        } else {
+            var type = 'phone';
+            address += '@' + carrier;
+        }
+        var enabled = parseInt(elem.find('select#enabled').val());
+        recipients.push({
+            address: address,
+            type: type,
+            enabled: enabled
+        });
+    });
     $.ajax('/update', {
         type: 'POST',
         dataType: 'json',
-        data: { data: JSON.stringify({ email: email, phone_email: phoneEmail, phone_enabled: phoneEnabled }) },
+        data: { key: 'recipients', value: JSON.stringify(recipients) },
         success: function(data, textStatus, jqXHR) {
             if (data['status'] === 'ok') {
                 toastr['success'](data['message']);
@@ -130,6 +142,34 @@ $("button#update-contact").click(function (e) {
             }
         }
     });
+}
+
+$('button#delete-recipient').click(function (e) {
+    $($(e.target).closest('tr#recipient')).remove();
+    updateRecipients();
+});
+
+$('button#add-recipient').click(function (e) {
+    var $newTr = $($(e.target).closest('tr#new-recipient'));
+    var $address = $newTr.find('input#address');
+    var $carrier = $newTr.find('select#carrier');
+    var $enabled = $newTr.find('select#enabled');
+
+    var $tr = $($newTr.siblings('tr#recipient')[0]).clone();
+    $tr.find('input#address').val($address.val());
+    $tr.find('select#carrier').val($carrier.val());
+    $tr.find('select#enabled').val($enabled.val());
+    $newTr.before($tr);
+
+    $address.val('');
+    $carrier.val('EMAIL');
+    $enabled.val(1);
+
+    updateRecipients();
+});
+
+$('button#save-recipients').click(function (e) {
+    updateRecipients();
 });
 
 // Update password
@@ -149,7 +189,6 @@ $("button#update-password").click(function (e) {
     });
 });
 
-
 // Intercept login/logout form and signup form and send as ajax
 $("form").submit(function (e) {
     e.preventDefault();
@@ -159,12 +198,23 @@ $("form").submit(function (e) {
         result[currArray.name] = currArray.value;
         return result;
     }, {});
+    data.recipients = [{
+        'address': data.email,
+        'type': 'email',
+        'enabled': (data.phone_enabled == '0' ? 1 : 0)
+    }];
     if(data.hasOwnProperty("phone") && data.phone.length > 0) {
-        data.phone_email = data.phone + '@' + data.carrier;
+        data.recipients.push({
+            'address': data.phone + '@' + data.carrier,
+            'type': 'phone',
+            'enabled': (data.phone_enabled == '1' ? 1 : 0)
+        });
     }
-    if(data.hasOwnProperty("phone") || data.hasOwnProperty("carrier")) {
+    data.recipients = JSON.stringify(data.recipients);
+    if(data.hasOwnProperty("phone") || data.hasOwnProperty("carrier") || data.hasOwnProperty("phone_enabled")) {
         delete data.phone;
         delete data.carrier;
+        delete data.phone_enabled;
     }
     $.ajax(action, {
         type: 'POST',
@@ -223,18 +273,3 @@ $('button#stripe-charge').click(function(e) {
     description: 'WG Cares Donation'
   });
 });
-
-$('button#account-upgrade').click(function (e) {
-    $.ajax('/charge', {
-        type: 'POST',
-        dataType: 'json',
-        data: { stripeToken: 'FREE', amount: 'FREE' },
-        success: function (data, textStatus, jqXHR) {
-            if (data['status'] === 'ok') {
-                location.reload();
-            } else {
-                toastr['error'](data['message']);
-            }
-        }
-    });
-})

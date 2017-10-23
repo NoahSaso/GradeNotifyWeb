@@ -32,11 +32,6 @@ function validAccountPassword(student_id, password, callback) {
     var user = {};
     if (valid) {
       user = JSON.parse(stdout.trim());
-      if (user.hasOwnProperty('phone_email') && user.phone_email && user.phone_email.indexOf('@') > -1) {
-        user.phone = user.phone_email.split('@')[0];
-        user.carrier = user.phone_email.split('@')[1];
-        delete user.phone_email;
-      }
     }
     callback(valid, user);
   });
@@ -237,6 +232,9 @@ router.post('/register', jsonResponse, function (req, res, next) {
   delete data.first_name;
   delete data.last_name;
 
+  // data.recipients = JSON.parse(data.recipients);
+  console.log(data);
+
   checkAccountExists(data.student_id, function (exists, error) {
     if (exists) {
       res.send(JSON.stringify({ status: 'error', message: 'This student ID is already registered to an account.' }));
@@ -278,6 +276,8 @@ router.post('/update', authenticate, jsonResponse, function (req, res, next) {
     }
   }
 
+  console.log(data);
+
   if (Object.keys(data).includes('key') && Object.keys(data).includes('value')) {
 
     if (data.key == 'password') {
@@ -295,7 +295,11 @@ router.post('/update', authenticate, jsonResponse, function (req, res, next) {
     }
 
     modifyAccount(req.session.student['student_id'], data.key, data.value, function (error, stdout, stderr) {
-      req.session.student[data.key] = data.value;
+      if (data.key == 'recipients') {
+        req.session.student[data.key] = JSON.parse(data.value);
+      } else {
+        req.session.student[data.key] = data.value;
+      }
       if (data.key == 'enabled') {
         res.send(JSON.stringify({ status: 'ok', message: 'Your account has been ' + (data.value == 1 ? 'enabled' : 'disabled') + '.' }));
       } else {
