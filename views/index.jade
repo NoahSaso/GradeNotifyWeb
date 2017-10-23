@@ -108,8 +108,7 @@ block content
                   th Status
                   th Name
                   th Student ID
-                  th Email
-                  th Phone
+                  th Recipients
               tbody
                 - each student in students.all
                   tr
@@ -119,9 +118,7 @@ block content
                       input.account-text.form-control(type='text', data-key='name', data-student-id=student.student_id, value=student.name)
                     td= student.student_id
                     td
-                      input.account-text.form-control(type='text', data-key='email', data-student-id=student.student_id, value=student.email)
-                    td
-                      input.account-text.form-control(type='text', data-key='phone_email', data-student-id=student.student_id, value=student.phone_email)
+                      input.account-text.form-control(type='text', data-key='recipients', data-student-id=student.student_id, value=student.recipients)
       else if loggedIn
         //- not admin -- display enable/disable
         div(class='card')

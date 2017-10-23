@@ -30,6 +30,9 @@ $("input.account-text").keypress(function (e) {
         var student_id = $(e.target).data('student-id');
         var key = $(e.target).data('key');
         var value = $(e.target).val();
+        if (key == 'recipients') {
+            value = JSON.stringify(value);
+        }    
         $.ajax('/admin/update', {
             type: 'POST',
             dataType: 'json',
