@@ -118,7 +118,7 @@ block content
                       input.account-text.form-control(type='text', data-key='name', data-student-id=student.student_id, value=student.name)
                     td= student.student_id
                     td
-                      input.account-text.form-control(type='text', data-key='recipients', data-student-id=student.student_id, value=student.recipients)
+                      input.account-text.form-control(type='text', data-key='recipients', data-student-id=student.student_id, value=JSON.stringify(student.recipients))
       else if loggedIn
         //- not admin -- display enable/disable
         div(class='card')
