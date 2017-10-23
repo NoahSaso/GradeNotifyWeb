@@ -3,6 +3,8 @@ extends layout
 block content
   div.tab-content
     div.tab-pane.fade.show.active(id='register',role='tabpanel')
+      div.alert.alert-danger
+        p This service is currently disabled. Please check back later.
       div(class='card')
         h5.card-header What is this?
         div(class='card-block')
@@ -74,7 +76,8 @@ block content
                   br
               div(class='row')
                 div(class='col-12')
-                  input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
+                  //- input(id='submit',type='submit',name='submit',value='Sign Up',class='form-control btn btn-primary btn-block')
+                  input(id='submit',type='submit',name='submit',value='Signing up is currently disabled',class='form-control btn btn-danger btn-block',disabled='disabled')
       br
     div.tab-pane.fade(id='account',role='tabpanel')
       div(class='card')
